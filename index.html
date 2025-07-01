@@ -1,593 +1,899 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>图片文字编辑器</title>
-  <script src="https://cdn.tailwindcss.com"></script>
-  <link href="https://cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css" rel="stylesheet">
-  <script>
-    tailwind.config = {
-      theme: {
-        extend: {
-          colors: {
-            primary: '#165DFF',
-            secondary: '#FF7D00',
-            neutral: {
-              100: '#F5F7FA',
-              200: '#E5E6EB',
-              300: '#C9CDD4',
-              400: '#86909C',
-              500: '#4E5969',
-              600: '#272E3B',
-              700: '#1D2129',
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>图片文字编辑器</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .header h1 {
+            color: #333;
+            font-size: 2.5em;
+            font-weight: 700;
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .editor-container {
+            display: flex;
+            gap: 30px;
+            min-height: 600px;
+        }
+
+        .controls {
+            flex: 0 0 300px;
+            background: #f8f9fa;
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+        }
+
+        .control-group {
+            margin-bottom: 25px;
+        }
+
+        .control-group h3 {
+            color: #333;
+            margin-bottom: 15px;
+            font-size: 1.2em;
+            font-weight: 600;
+        }
+
+        .file-input-wrapper {
+            position: relative;
+            display: inline-block;
+            width: 100%;
+        }
+
+        .file-input {
+            position: absolute;
+            opacity: 0;
+            width: 100%;
+            height: 100%;
+            cursor: pointer;
+        }
+
+        .file-input-button {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 15px;
+            background: linear-gradient(45deg, #4CAF50, #45a049);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            box-shadow: 0 5px 15px rgba(76, 175, 80, 0.3);
+        }
+
+        .file-input-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(76, 175, 80, 0.4);
+        }
+
+        .input-field {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 16px;
+            transition: all 0.3s ease;
+            background: white;
+        }
+
+        .input-field:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        .color-input {
+            width: 100%;
+            height: 50px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .range-input {
+            width: 100%;
+            height: 6px;
+            border-radius: 3px;
+            background: #ddd;
+            outline: none;
+            -webkit-appearance: none;
+        }
+
+        .range-input::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: #667eea;
+            cursor: pointer;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+        }
+
+        .button {
+            width: 100%;
+            padding: 12px;
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-bottom: 10px;
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.3);
+        }
+
+        .button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(102, 126, 234, 0.4);
+        }
+
+        .canvas-container {
+            flex: 1;
+            background: white;
+            border-radius: 15px;
+            padding: 20px;
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.08);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 600px;
+        }
+
+        #canvas {
+            border: 3px solid #e0e0e0;
+            border-radius: 10px;
+            cursor: crosshair;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s ease;
+        }
+
+        #canvas:hover {
+            border-color: #667eea;
+            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.15);
+        }
+
+        .text-list {
+            background: white;
+            border-radius: 10px;
+            max-height: 200px;
+            overflow-y: auto;
+            border: 2px solid #e0e0e0;
+        }
+
+        .text-item {
+            padding: 10px;
+            border-bottom: 1px solid #f0f0f0;
+            cursor: pointer;
+            transition: background-color 0.2s ease;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .text-item:hover {
+            background-color: #f8f9fa;
+        }
+
+        .text-item.selected {
+            background-color: #e3f2fd;
+            border-left: 4px solid #667eea;
+        }
+
+        .delete-btn {
+            background: #ff4757;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            padding: 5px 10px;
+            cursor: pointer;
+            font-size: 12px;
+            transition: all 0.2s ease;
+        }
+
+        .delete-btn:hover {
+            background: #ff3742;
+            transform: scale(1.05);
+        }
+
+        .orientation-btn {
+            flex: 1;
+            padding: 10px;
+            background: #e0e0e0;
+            color: #666;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .orientation-btn.active {
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            color: white;
+            box-shadow: 0 3px 10px rgba(102, 126, 234, 0.3);
+        }
+
+        .orientation-btn:hover {
+            transform: translateY(-1px);
+        }
+
+        .range-value {
+            display: inline-block;
+            margin-left: 10px;
+            font-weight: 600;
+            color: #667eea;
+        }
+
+        @media (max-width: 768px) {
+            .editor-container {
+                flex-direction: column;
             }
-          },
-          fontFamily: {
-            inter: ['Inter', sans-serif],
-          },
-        },
-      }
-    }
-  </script>
-  <style type="text/tailwindcss">
-    @layer utilities {
-      .content-auto {
-        content-visibility: auto;
-      }
-      .scrollbar-hide {
-        -ms-overflow-style: none;
-        scrollbar-width: none;
-      }
-      .scrollbar-hide::-webkit-scrollbar {
-        display: none;
-      }
-      .backdrop-blur-sm {
-        backdrop-filter: blur(4px);
-      }
-      .text-shadow {
-        text-shadow: 0 2px 4px rgba(0,0,0,0.1);
-      }
-      .text-shadow-lg {
-        text-shadow: 0 4px 8px rgba(0,0,0,0.12), 0 2px 4px rgba(0,0,0,0.08);
-      }
-      .draggable-text {
-        position: absolute;
-        cursor: move;
-        user-select: none;
-        white-space: nowrap;
-      }
-      .resizable {
-        resize: both;
-        overflow: auto;
-      }
-    }
-  </style>
+            
+            .controls {
+                flex: none;
+            }
+            
+            .container {
+                padding: 20px;
+            }
+            
+            .header h1 {
+                font-size: 2em;
+            }
+        }
+    </style>
 </head>
-<body class="font-inter bg-neutral-100 text-neutral-700 min-h-screen flex flex-col">
-  <!-- 导航栏 -->
-  <header class="sticky top-0 z-50 bg-white/80 backdrop-blur-sm border-b border-neutral-200 shadow-sm">
-    <div class="container mx-auto px-4 sm:px-6 lg:px-8">
-      <div class="flex justify-between items-center h-16">
-        <div class="flex items-center">
-          <a href="#" class="flex items-center">
-            <i class="fa fa-picture-o text-primary text-2xl mr-2"></i>
-            <span class="font-bold text-xl text-neutral-700">图片文字编辑器</span>
-          </a>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>✨ 图片文字编辑器</h1>
         </div>
-        <div class="hidden md:flex items-center space-x-4">
-          <button id="save-btn" class="bg-primary hover:bg-primary/90 text-white px-4 py-2 rounded-lg transition-colors duration-200 shadow-md hover:shadow-lg">
-            <i class="fa fa-save mr-1"></i>保存图片
-          </button>
-        </div>
-        <div class="md:hidden">
-          <button id="mobile-menu-button" class="text-neutral-500 hover:text-primary">
-            <i class="fa fa-bars text-xl"></i>
-          </button>
-        </div>
-      </div>
-    </div>
-    <!-- 移动端菜单 -->
-    <div id="mobile-menu" class="hidden md:hidden bg-white border-t border-neutral-200">
-      <div class="px-2 pt-2 pb-3 space-y-1 sm:px-3">
-        <button id="save-btn-mobile" class="w-full bg-primary hover:bg-primary/90 text-white px-4 py-2 rounded-lg transition-colors duration-200 shadow-md hover:shadow-lg">
-          <i class="fa fa-save mr-1"></i>保存图片
-        </button>
-      </div>
-    </div>
-  </header>
+        
+        <div class="editor-container">
+            <div class="controls">
+                <div class="control-group">
+                    <h3>🖼️ 背景图片</h3>
+                    <div class="file-input-wrapper">
+                        <input type="file" class="file-input" id="backgroundInput" accept="image/*">
+                        <div class="file-input-button">
+                            📁 选择背景图片
+                        </div>
+                    </div>
+                </div>
 
-  <!-- 主内容区 -->
-  <main class="flex-grow container mx-auto px-4 sm:px-6 lg:px-8 py-6">
-    <div class="grid grid-cols-1 lg:grid-cols-4 gap-6">
-      <!-- 左侧控制面板 -->
-      <div class="lg:col-span-1 space-y-6">
-        <!-- 上传区域 -->
-        <div class="bg-white rounded-xl shadow-md p-6 border border-neutral-200">
-          <h2 class="text-lg font-semibold text-neutral-700 mb-4">上传图片</h2>
-          <div class="space-y-4">
-            <div>
-              <div id="image-upload-container" class="border-2 border-dashed border-neutral-300 rounded-lg p-6 text-center hover:border-primary transition-colors duration-200 cursor-pointer">
-                <input type="file" id="image-upload" class="hidden" accept="image/*">
-                <i class="fa fa-cloud-upload text-3xl text-neutral-400 mb-2"></i>
-                <p class="text-sm text-neutral-500">点击或拖拽图片到这里</p>
-                <p class="text-xs text-neutral-400 mt-1">支持 JPG, PNG, WebP 格式</p>
-              </div>
-              <div id="image-preview" class="hidden mt-3">
-                <img id="preview-img" src="" alt="图片预览" class="w-full h-auto object-cover rounded-lg">
-                <button id="remove-image-btn" class="mt-2 text-xs text-red-500 hover:text-red-600">
-                  <i class="fa fa-trash-o mr-1"></i>移除图片
-                </button>
-              </div>
-            </div>
-          </div>
-        </div>
-        
-        <!-- 文字设置 -->
-        <div class="bg-white rounded-xl shadow-md p-6 border border-neutral-200">
-          <h2 class="text-lg font-semibold text-neutral-700 mb-4">添加文字</h2>
-          <div class="space-y-4">
-            <div>
-              <label class="block text-sm font-medium text-neutral-500 mb-1">文字内容</label>
-              <textarea id="text-content" rows="2" placeholder="输入要添加的文字" class="w-full px-4 py-2 border border-neutral-300 rounded-lg focus:ring-2 focus:ring-primary/30 focus:border-primary transition-colors duration-200 outline-none"></textarea>
-            </div>
-            
-            <div class="grid grid-cols-2 gap-2">
-              <div>
-                <label class="block text-sm font-medium text-neutral-500 mb-1">字体大小</label>
-                <input type="number" id="font-size" value="24" min="8" max="100" class="w-full px-4 py-2 border border-neutral-300 rounded-lg focus:ring-2 focus:ring-primary/30 focus:border-primary transition-colors duration-200 outline-none">
-              </div>
-              <div>
-                <label class="block text-sm font-medium text-neutral-500 mb-1">文字颜色</label>
-                <input type="color" id="text-color" value="#FFFFFF" class="w-full h-10 px-2 border border-neutral-300 rounded-lg focus:ring-2 focus:ring-primary/30 focus:border-primary">
-              </div>
-            </div>
-            
-            <div>
-              <label class="block text-sm font-medium text-neutral-500 mb-1">文字对齐</label>
-              <div class="flex space-x-2">
-                <button class="text-align-btn flex-1 py-2 px-3 bg-white border border-neutral-300 rounded-lg hover:border-primary/50 transition-colors duration-200" data-align="left">
-                  <i class="fa fa-align-left"></i>
-                </button>
-                <button class="text-align-btn flex-1 py-2 px-3 bg-primary/10 border border-primary text-primary rounded-lg" data-align="center">
-                  <i class="fa fa-align-center"></i>
-                </button>
-                <button class="text-align-btn flex-1 py-2 px-3 bg-white border border-neutral-300 rounded-lg hover:border-primary/50 transition-colors duration-200" data-align="right">
-                  <i class="fa fa-align-right"></i>
-                </button>
-              </div>
-            </div>
-            
-            <div>
-              <label class="block text-sm font-medium text-neutral-500 mb-1">文字样式</label>
-              <div class="flex space-x-2">
-                <button id="bold-btn" class="text-style-btn flex-1 py-2 px-3 bg-white border border-neutral-300 rounded-lg hover:border-primary/50 transition-colors duration-200">
-                  <i class="fa fa-bold"></i>
-                </button>
-                <button id="italic-btn" class="text-style-btn flex-1 py-2 px-3 bg-white border border-neutral-300 rounded-lg hover:border-primary/50 transition-colors duration-200">
-                  <i class="fa fa-italic"></i>
-                </button>
-                <button id="underline-btn" class="text-style-btn flex-1 py-2 px-3 bg-white border border-neutral-300 rounded-lg hover:border-primary/50 transition-colors duration-200">
-                  <i class="fa fa-underline"></i>
-                </button>
-                <button id="shadow-btn" class="text-style-btn flex-1 py-2 px-3 bg-white border border-neutral-300 rounded-lg hover:border-primary/50 transition-colors duration-200">
-                  <i class="fa fa-moon-o"></i>
-                </button>
-              </div>
-            </div>
-            
-            <button id="add-text-btn" class="w-full bg-primary hover:bg-primary/90 text-white py-2 rounded-lg transition-colors duration-200 shadow-md hover:shadow-lg flex items-center justify-center">
-              <i class="fa fa-plus mr-1"></i>添加文字
-            </button>
-          </div>
-        </div>
-        
-        <!-- 文字列表 -->
-        <div class="bg-white rounded-xl shadow-md p-6 border border-neutral-200">
-          <h2 class="text-lg font-semibold text-neutral-700 mb-4">文字元素</h2>
-          <div id="text-elements-list" class="space-y-2 max-h-60 overflow-y-auto scrollbar-hide">
-            <div class="text-center text-neutral-400 text-sm py-4">
-              暂无文字元素
-            </div>
-          </div>
-        </div>
-      </div>
-      
-      <!-- 右侧预览区域 -->
-      <div class="lg:col-span-3">
-        <div class="bg-white rounded-xl shadow-md p-6 border border-neutral-200 h-full flex flex-col">
-          <h2 class="text-lg font-semibold text-neutral-700 mb-4">图片预览</h2>
-          
-          <!-- 预览工具栏 -->
-          <div class="flex justify-between items-center mb-4">
-            <div class="flex space-x-2">
-              <button class="preview-btn px-3 py-1.5 bg-white border border-neutral-300 rounded-lg text-sm hover:border-primary/50 transition-colors duration-200">
-                <i class="fa fa-search-minus mr-1"></i>缩小
-              </button>
-              <button class="preview-btn px-3 py-1.5 bg-white border border-neutral-300 rounded-lg text-sm hover:border-primary/50 transition-colors duration-200">
-                <i class="fa fa-search-plus mr-1"></i>放大
-              </button>
-              <button class="preview-btn px-3 py-1.5 bg-white border border-neutral-300 rounded-lg text-sm hover:border-primary/50 transition-colors duration-200">
-                <i class="fa fa-arrows-alt mr-1"></i>实际大小
-              </button>
-            </div>
-            <button id="download-btn" class="px-3 py-1.5 bg-primary hover:bg-primary/90 text-white rounded-lg text-sm shadow-md hover:shadow-lg transition-colors duration-200 flex items-center">
-              <i class="fa fa-download mr-2"></i>下载图片
-            </button>
-          </div>
-          
-          <!-- 图片预览区域 -->
-          <div class="flex-grow bg-neutral-100 rounded-lg overflow-hidden flex items-center justify-center relative">
-            <div id="image-container" class="bg-white shadow-xl rounded-lg overflow-hidden transition-all duration-300 transform scale-75 cursor-move relative" style="width: 800px; height: 600px;">
-              <!-- 图片 -->
-              <div id="image-wrapper" class="absolute inset-0">
-                <img id="main-image" src="https://picsum.photos/800/600" alt="主图片" class="w-full h-full object-cover">
-              </div>
-              
-              <!-- 文字元素将在这里动态添加 -->
-              <div id="text-layer" class="absolute inset-0 pointer-events-none"></div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-  </main>
+                <div class="control-group">
+                    <h3>📝 添加文字</h3>
+                    <input type="text" class="input-field" id="textInput" placeholder="输入要添加的文字">
+                    <br><br>
+                    <button class="button" id="addTextBtn">➕ 添加文字</button>
+                </div>
 
-  <!-- 页脚 -->
-  <footer class="bg-neutral-700 text-white py-8 mt-12">
-    <div class="container mx-auto px-4 sm:px-6 lg:px-8">
-      <div class="grid grid-cols-1 md:grid-cols-4 gap-8">
-        <div>
-          <h3 class="text-lg font-semibold mb-4">图片文字编辑器</h3>
-          <p class="text-neutral-300 text-sm">简单易用的图片文字编辑工具，直接在图片上添加文字并下载保存。</p>
-        </div>
-        <div>
-          <h3 class="text-lg font-semibold mb-4">快速链接</h3>
-          <ul class="space-y-2 text-sm">
-            <li><a href="#" class="text-neutral-300 hover:text-white transition-colors duration-200">使用教程</a></li>
-            <li><a href="#" class="text-neutral-300 hover:text-white transition-colors duration-200">常见问题</a></li>
-            <li><a href="#" class="text-neutral-300 hover:text-white transition-colors duration-200">联系我们</a></li>
-          </ul>
-        </div>
-      </div>
-      <div class="border-t border-neutral-600 mt-8 pt-8 text-center text-neutral-400 text-sm">
-        <p>&copy; 2025 图片文字编辑器. 保留所有权利.</p>
-      </div>
-    </div>
-  </footer>
+                <div class="control-group">
+                    <h3>🎨 文字样式</h3>
+                    <label>颜色：</label>
+                    <input type="color" class="color-input" id="textColor" value="#000000">
+                    <br><br>
+                    
+                    <label>字体大小：</label>
+                    <input type="range" class="range-input" id="fontSize" min="12" max="100" value="24">
+                    <span class="range-value" id="fontSizeValue">24px</span>
+                    <br><br>
+                    
+                    <label>字体粗细：</label>
+                    <input type="range" class="range-input" id="fontWeight" min="100" max="900" step="100" value="400">
+                    <span class="range-value" id="fontWeightValue">400</span>
+                </div>
 
-  <!-- 脚本 -->
-  <script>
-    // 移动端菜单切换
-    document.getElementById('mobile-menu-button').addEventListener('click', function() {
-      const mobileMenu = document.getElementById('mobile-menu');
-      mobileMenu.classList.toggle('hidden');
-    });
-    
-    // 图片上传
-    const imageUploadContainer = document.getElementById('image-upload-container');
-    const imageUpload = document.getElementById('image-upload');
-    const imagePreview = document.getElementById('image-preview');
-    const previewImg = document.getElementById('preview-img');
-    const removeImageBtn = document.getElementById('remove-image-btn');
-    const mainImage = document.getElementById('main-image');
-    
-    imageUploadContainer.addEventListener('click', () => imageUpload.click());
-    
-    imageUpload.addEventListener('change', function(e) {
-      if (this.files && this.files[0]) {
-        const reader = new FileReader();
+                <div class="control-group">
+                    <h3>📋 文字列表</h3>
+                    <div class="text-list" id="textList">
+                        <div style="padding: 20px; text-align: center; color: #999;">
+                            暂无文字
+                        </div>
+                    </div>
+                </div>
+
+                <div class="control-group">
+                    <h3>📐 画布方向</h3>
+                    <div style="display: flex; gap: 10px; margin-bottom: 15px;">
+                        <button class="orientation-btn" id="landscapeBtn" data-orientation="landscape">
+                            📱 横向
+                        </button>
+                        <button class="orientation-btn active" id="portraitBtn" data-orientation="portrait">
+                            📱 竖向
+                        </button>
+                    </div>
+                    
+                    <label>画布尺寸：</label>
+                    <select class="input-field" id="canvasSize" style="margin-bottom: 15px;">
+                        <option value="600x400">600×400 (默认)</option>
+                        <option value="800x600">800×600</option>
+                        <option value="1024x768">1024×768</option>
+                        <option value="1200x800">1200×800</option>
+                        <option value="1920x1080">1920×1080 (高清)</option>
+                        <option value="custom">自定义尺寸</option>
+                    </select>
+                    
+                    <div id="customSizeInputs" style="display: none; gap: 10px; margin-bottom: 15px;">
+                        <input type="number" class="input-field" id="customWidth" placeholder="宽度" min="100" max="3000" style="width: 48%; display: inline-block;">
+                        <input type="number" class="input-field" id="customHeight" placeholder="高度" min="100" max="3000" style="width: 48%; display: inline-block;">
+                    </div>
+                </div>
+
+                <div class="control-group">
+                    <button class="button" id="clearBtn">🗑️ 清空画布</button>
+                    <button class="button" id="downloadBtn">💾 下载图片</button>
+                </div>
+            </div>
+
+            <div class="canvas-container">
+                <canvas id="canvas" width="600" height="400"></canvas>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 获取DOM元素
+        const canvas = document.getElementById('canvas');
+        const ctx = canvas.getContext('2d');
+        const backgroundInput = document.getElementById('backgroundInput');
+        const textInput = document.getElementById('textInput');
+        const textColor = document.getElementById('textColor');
+        const fontSize = document.getElementById('fontSize');
+        const fontWeight = document.getElementById('fontWeight');
+        const textList = document.getElementById('textList');
+        const addTextBtn = document.getElementById('addTextBtn');
+        const clearBtn = document.getElementById('clearBtn');
+        const downloadBtn = document.getElementById('downloadBtn');
+        const landscapeBtn = document.getElementById('landscapeBtn');
+        const portraitBtn = document.getElementById('portraitBtn');
+        const canvasSize = document.getElementById('canvasSize');
+        const customSizeInputs = document.getElementById('customSizeInputs');
+        const customWidth = document.getElementById('customWidth');
+        const customHeight = document.getElementById('customHeight');
         
-        reader.onload = function(e) {
-          previewImg.src = e.target.result;
-          mainImage.src = e.target.result;
-          imagePreview.classList.remove('hidden');
+        // 状态变量
+        let backgroundImage = null;
+        let texts = [];
+        let selectedTextIndex = -1;
+        let isDragging = false;
+        let dragOffset = { x: 0, y: 0 };
+        let currentOrientation = 'portrait'; // 'landscape' 或 'portrait'
+
+        // 初始化函数
+        function init() {
+            console.log('编辑器初始化...');
+            drawCanvas();
+            setupEventListeners();
         }
-        
-        reader.readAsDataURL(this.files[0]);
-      }
-    });
-    
-    removeImageBtn.addEventListener('click', function() {
-      imageUpload.value = '';
-      imagePreview.classList.add('hidden');
-      // 恢复默认图片
-      mainImage.src = 'https://picsum.photos/800/600';
-    });
-    
-    // 文字样式设置
-    let currentTextStyle = {
-      fontSize: 24,
-      color: '#FFFFFF',
-      align: 'center',
-      bold: false,
-      italic: false,
-      underline: false,
-      shadow: false
-    };
-    
-    // 文字对齐按钮
-    const textAlignBtns = document.querySelectorAll('.text-align-btn');
-    textAlignBtns.forEach(btn => {
-      btn.addEventListener('click', function() {
-        // 移除所有按钮的选中状态
-        textAlignBtns.forEach(b => {
-          b.classList.remove('bg-primary/10', 'border-primary', 'text-primary');
-          b.classList.add('bg-white', 'border-neutral-300');
-        });
-        
-        // 添加当前按钮的选中状态
-        this.classList.remove('bg-white', 'border-neutral-300');
-        this.classList.add('bg-primary/10', 'border-primary', 'text-primary');
-        
-        // 更新样式
-        currentTextStyle.align = this.dataset.align;
-      });
-    });
-    
-    // 文字样式按钮
-    const boldBtn = document.getElementById('bold-btn');
-    const italicBtn = document.getElementById('italic-btn');
-    const underlineBtn = document.getElementById('underline-btn');
-    const shadowBtn = document.getElementById('shadow-btn');
-    
-    boldBtn.addEventListener('click', function() {
-      currentTextStyle.bold = !currentTextStyle.bold;
-      this.classList.toggle('bg-primary/10');
-      this.classList.toggle('border-primary');
-      this.classList.toggle('text-primary');
-    });
-    
-    italicBtn.addEventListener('click', function() {
-      currentTextStyle.italic = !currentTextStyle.italic;
-      this.classList.toggle('bg-primary/10');
-      this.classList.toggle('border-primary');
-      this.classList.toggle('text-primary');
-    });
-    
-    underlineBtn.addEventListener('click', function() {
-      currentTextStyle.underline = !currentTextStyle.underline;
-      this.classList.toggle('bg-primary/10');
-      this.classList.toggle('border-primary');
-      this.classList.toggle('text-primary');
-    });
-    
-    shadowBtn.addEventListener('click', function() {
-      currentTextStyle.shadow = !currentTextStyle.shadow;
-      this.classList.toggle('bg-primary/10');
-      this.classList.toggle('border-primary');
-      this.classList.toggle('text-primary');
-    });
-    
-    // 字体大小和颜色
-    const fontSizeInput = document.getElementById('font-size');
-    const textColorInput = document.getElementById('text-color');
-    
-    fontSizeInput.addEventListener('input', function() {
-      currentTextStyle.fontSize = parseInt(this.value);
-    });
-    
-    textColorInput.addEventListener('input', function() {
-      currentTextStyle.color = this.value;
-    });
-    
-    // 文字元素列表
-    let textElements = [];
-    let nextTextId = 1;
-    let selectedTextElement = null;
-    
-    // 添加文字按钮
-    const addTextBtn = document.getElementById('add-text-btn');
-    const textContent = document.getElementById('text-content');
-    const textLayer = document.getElementById('text-layer');
-    const textElementsList = document.getElementById('text-elements-list');
-    
-    addTextBtn.addEventListener('click', function() {
-      const content = textContent.value.trim();
-      if (!content) {
-        alert('请输入文字内容');
-        return;
-      }
-      
-      // 创建文字元素
-      const textElement = document.createElement('div');
-      textElement.id = 'text-element-' + nextTextId++;
-      textElement.className = 'draggable-text pointer-events-auto';
-      textElement.textContent = content;
-      
-      // 应用样式
-      textElement.style.fontSize = currentTextStyle.fontSize + 'px';
-      textElement.style.color = currentTextStyle.color;
-      textElement.style.textAlign = currentTextStyle.align;
-      textElement.style.fontWeight = currentTextStyle.bold ? 'bold' : 'normal';
-      textElement.style.fontStyle = currentTextStyle.italic ? 'italic' : 'normal';
-      textElement.style.textDecoration = currentTextStyle.underline ? 'underline' : 'none';
-      textElement.style.textShadow = currentTextStyle.shadow ? '0 2px 4px rgba(0,0,0,0.5)' : 'none';
-      
-      // 设置初始位置
-      textElement.style.left = '50%';
-      textElement.style.top = '50%';
-      textElement.style.transform = 'translate(-50%, -50%)';
-      
-      // 添加到DOM
-      textLayer.appendChild(textElement);
-      
-      // 添加到列表
-      const textItem = {
-        id: textElement.id,
-        content: content,
-        element: textElement
-      };
-      textElements.push(textItem);
-      
-      // 更新文字元素列表
-      updateTextElementsList();
-      
-      // 清空输入框
-      textContent.value = '';
-      
-      // 使元素可拖动
-      makeElementDraggable(textElement);
-      
-      // 选中新添加的元素
-      selectTextElement(textElement);
-    });
-    
-    // 使元素可拖动
-    function makeElementDraggable(element) {
-      let pos1 = 0, pos2 = 0, pos3 = 0, pos4 = 0;
-      
-      element.onmousedown = dragMouseDown;
-      
-      function dragMouseDown(e) {
-        e.preventDefault();
-        // 获取鼠标位置
-        pos3 = e.clientX;
-        pos4 = e.clientY;
-        
-        // 选中当前元素
-        selectTextElement(element);
-        
-        document.onmouseup = closeDragElement;
-        document.onmousemove = elementDrag;
-      }
-      
-      function elementDrag(e) {
-        e.preventDefault();
-        // 计算新位置
-        pos1 = pos3 - e.clientX;
-        pos2 = pos4 - e.clientY;
-        pos3 = e.clientX;
-        pos4 = e.clientY;
-        
-        // 设置新位置
-        const rect = textLayer.getBoundingClientRect();
-        const x = e.clientX - rect.left;
-        const y = e.clientY - rect.top;
-        
-        element.style.left = x + 'px';
-        element.style.top = y + 'px';
-        element.style.transform = 'none';
-      }
-      
-      function closeDragElement() {
-        // 停止移动
-        document.onmouseup = null;
-        document.onmousemove = null;
-      }
-    }
-    
-    // 选中文字元素
-    function selectTextElement(element) {
-      // 移除之前选中元素的高亮
-      if (selectedTextElement) {
-        selectedTextElement.style.outline = 'none';
-      }
-      
-      // 高亮当前选中元素
-      element.style.outline = '2px dashed #165DFF';
-      selectedTextElement = element;
-      
-      // 更新文字内容输入框
-      const textItem = textElements.find(item => item.id === element.id);
-      if (textItem) {
-        textContent.value = textItem.content;
-      }
-      
-      // 更新文字样式设置
-      currentTextStyle.fontSize = parseInt(element.style.fontSize);
-      currentTextStyle.color = element.style.color;
-      currentTextStyle.align = element.style.textAlign;
-      currentTextStyle.bold = element.style.fontWeight === 'bold';
-      currentTextStyle.italic = element.style.fontStyle === 'italic';
-      currentTextStyle.underline = element.style.textDecoration === 'underline';
-      currentTextStyle.shadow = element.style.textShadow !== 'none';
-      
-      // 更新UI
-      fontSizeInput.value = currentTextStyle.fontSize;
-      textColorInput.value = currentTextStyle.color;
-      
-      // 更新对齐按钮状态
-      textAlignBtns.forEach(btn => {
-        if (btn.dataset.align === currentTextStyle.align) {
-          btn.classList.remove('bg-white', 'border-neutral-300');
-          btn.classList.add('bg-primary/10', 'border-primary', 'text-primary');
-        } else {
-          btn.classList.remove('bg-primary/10', 'border-primary', 'text-primary');
-          btn.classList.add('bg-white', 'border-neutral-300');
+
+        // 设置事件监听器
+        function setupEventListeners() {
+            // 背景图片上传
+            backgroundInput.addEventListener('change', function(e) {
+                handleBackgroundUpload(e);
+            });
+            
+            // 添加文字按钮
+            addTextBtn.addEventListener('click', function() {
+                addText();
+            });
+            
+            // 文字输入框回车
+            textInput.addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') {
+                    addText();
+                }
+            });
+            
+            // 字体大小滑块
+            fontSize.addEventListener('input', function() {
+                document.getElementById('fontSizeValue').textContent = this.value + 'px';
+                if (selectedTextIndex >= 0) {
+                    texts[selectedTextIndex].fontSize = parseInt(this.value);
+                    drawCanvas();
+                    updateTextList();
+                }
+            });
+            
+            // 字体粗细滑块
+            fontWeight.addEventListener('input', function() {
+                document.getElementById('fontWeightValue').textContent = this.value;
+                if (selectedTextIndex >= 0) {
+                    texts[selectedTextIndex].fontWeight = this.value;
+                    drawCanvas();
+                    updateTextList();
+                }
+            });
+            
+            // 文字颜色
+            textColor.addEventListener('change', function() {
+                if (selectedTextIndex >= 0) {
+                    texts[selectedTextIndex].color = this.value;
+                    drawCanvas();
+                    updateTextList();
+                }
+            });
+            
+            // 方向按钮
+            landscapeBtn.addEventListener('click', function() {
+                setOrientation('landscape');
+            });
+            
+            portraitBtn.addEventListener('click', function() {
+                setOrientation('portrait');
+            });
+            
+            // 画布尺寸选择
+            canvasSize.addEventListener('change', function() {
+                if (this.value === 'custom') {
+                    customSizeInputs.style.display = 'flex';
+                } else {
+                    customSizeInputs.style.display = 'none';
+                    applyCanvasSize(this.value);
+                }
+            });
+            
+            // 自定义尺寸输入
+            customWidth.addEventListener('input', function() {
+                if (customWidth.value && customHeight.value) {
+                    applyCanvasSize('custom');
+                }
+            });
+            
+            customHeight.addEventListener('input', function() {
+                if (customWidth.value && customHeight.value) {
+                    applyCanvasSize('custom');
+                }
+            });
+            
+            // 清空画布按钮
+            clearBtn.addEventListener('click', function() {
+                clearCanvas();
+            });
+            
+            // 下载图片按钮
+            downloadBtn.addEventListener('click', function() {
+                downloadImage();
+            });
+            
+            // 画布鼠标事件
+            canvas.addEventListener('mousedown', function(e) {
+                handleMouseDown(e);
+            });
+            
+            canvas.addEventListener('mousemove', function(e) {
+                handleMouseMove(e);
+            });
+            
+            canvas.addEventListener('mouseup', function(e) {
+                handleMouseUp(e);
+            });
+            
+            canvas.addEventListener('dblclick', function(e) {
+                handleDoubleClick(e);
+            });
         }
-      });
-      
-      // 更新样式按钮状态
-      [
-        { btn: boldBtn, state: currentTextStyle.bold },
-        { btn: italicBtn, state: currentTextStyle.italic },
-        { btn: underlineBtn, state: currentTextStyle.underline },
-        { btn: shadowBtn, state: currentTextStyle.shadow }
-      ].forEach(item => {
-        if (item.state) {
-          item.btn.classList.add('bg-primary/10', 'border-primary', 'text-primary');
-        } else {
-          item.btn.classList.remove('bg-primary/10', 'border-primary', 'text-primary');
-        }
-      });
-    }
-    
-    // 更新文字元素列表
-    function updateTextElementsList() {
-      textElementsList.innerHTML = '';
-      
-      if (textElements.length === 0) {
-        textElementsList.innerHTML = `
-          <div class="text-center text-neutral-400 text-sm py-4">
-            暂无文字元素
-          </div>
-        `;
-        return;
-      }
-      
-      textElements.forEach(item => {
-        const listItem = document.createElement('div');
-        listItem.className = 'flex items-center justify-between p-2 border-b border-neutral-200 hover:bg-neutral-50 cursor-pointer';
-        listItem.innerHTML = `
-          <span class="truncate max-w-[140px]">${item.content}</span>
-          <div class="flex space-x-1">
-            <button class="edit-text-btn p-1 text-neutral-500 hover:text-primary" data-id="${item.id}">
-              <i class="fa fa-pencil"></i>
-            </button>
-            <button class="delete-text-btn p-1 text-neutral-500 hover:text-red-500" data-id="${item.id}">
-              <i class="fa fa-trash-o"></i>
-            </button>
-          </div>
-        `;
-        
-        // 点击列表项选中文字元素
-        listItem.addEventListener('click', function(e) {
-          if (!e.target.closest('.edit-text-btn') && !e.target.closest('.delete-text-btn')) {
-            const element = document.getElementById(item.id);
-            if (element) {
-              selectTextElement(element);
+
+        // 设置画布方向
+        function setOrientation(orientation) {
+            currentOrientation = orientation;
+            
+            // 更新按钮状态
+            landscapeBtn.classList.toggle('active', orientation === 'landscape');
+            portraitBtn.classList.toggle('active', orientation === 'portrait');
+            
+            // 如果有背景图片，重新调整画布大小
+            if (backgroundImage) {
+                handleBackgroundUpload({ target: backgroundInput });
+            } else {
+                // 调整默认画布大小
+                const currentSize = canvasSize.value;
+                if (currentSize !== 'custom') {
+                    applyCanvasSize(currentSize);
+                }
             }
-          }
-        });
+        }
         
-        // 编辑按钮
-        listItem.querySelector('.edit-text-btn').addEventListener('click', function() {
-          const element = document.getElementById(item.id);
-          if (element) {
-            selectTextElement(element);
-            // 聚焦到文本输入框
-            textContent.focus();
-          }
-        });
-        
-        // 删除按钮
-        listItem.querySelector('.delete-text-btn').addEventListener('click', function() {
-          const element = document.getElementById(item.id);
-          if (element) {
-            if (selectedTextElement === element) {
-              selectedTextElement = null;
+        // 应用画布尺寸
+        function applyCanvasSize(sizeValue) {
+            let width, height;
+            
+            if (sizeValue === 'custom') {
+                width = parseInt(customWidth.value) || 600;
+                height = parseInt(customHeight.value) || 400;
+            } else {
+                const [w, h] = sizeValue.split('x').map(Number);
+                width = w;
+                height = h;
             }
-            element.remove();
-            textElements = textElements.filter(t => t.id !== item.id);
-            updateTextElementsList();
+            
+            // 根据方向调整
+            if (currentOrientation === 'landscape' && width < height) {
+                [width, height] = [height, width];
+            } else if (currentOrientation === 'portrait' && width > height) {
+                [width, height] = [height, width];
+            }
+            
+            canvas.width = width;
+            canvas.height = height;
+            
+            // 调整文字位置（如果文字超出画布范围）
+            texts.forEach(text => {
+                text.x = Math.min(text.x, width - 50);
+                text.y = Math.min(text.y, height - 30);
+                text.x = Math.max(text.x, 50);
+                text.y = Math.max(text.y, 30);
+            });
+            
+            drawCanvas();
+        }
+        function handleBackgroundUpload(e) {
+            const file = e.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(event) {
+                    const img = new Image();
+                    img.onload = function() {
+                        backgroundImage = img;
+                        
+                        // 调整画布大小
+                        const maxWidth = 600;
+                        const maxHeight = 400;
+                        let newWidth = img.width;
+                        let newHeight = img.height;
+                        
+                        if (newWidth > maxWidth || newHeight > maxHeight) {
+                            const ratio = Math.min(maxWidth / newWidth, maxHeight / newHeight);
+                            newWidth = newWidth * ratio;
+                            newHeight = newHeight * ratio;
+                        }
+                        
+                        canvas.width = newWidth;
+                        canvas.height = newHeight;
+                        drawCanvas();
+                        console.log('背景图片已加载');
+                    };
+                    img.src = event.target.result;
+                };
+                reader.readAsDataURL(file);
+            }
+        }
+
+        // 添加文字
+        function addText() {
+            const text = textInput.value.trim();
+            if (text) {
+                const newText = {
+                    content: text,
+                    x: canvas.width / 2,
+                    y: canvas.height / 2,
+                    fontSize: parseInt(fontSize.value),
+                    fontWeight: fontWeight.value,
+                    color: textColor.value,
+                    id: Date.now()
+                };
+                
+                texts.push(newText);
+                textInput.value = '';
+                drawCanvas();
+                updateTextList();
+                console.log('添加文字:', text);
+            }
+        }
+
+        // 绘制画布
+        function drawCanvas() {
+            // 清空画布
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            
+            // 绘制背景
+            if (backgroundImage) {
+                // 根据当前方向调整背景图片绘制
+                let drawWidth = canvas.width;
+                let drawHeight = canvas.height;
+                let sourceWidth = backgroundImage.width;
+                let sourceHeight = backgroundImage.height;
+                
+                // 如果需要旋转（方向不匹配）
+                const imageIsLandscape = sourceWidth > sourceHeight;
+                const canvasIsLandscape = drawWidth > drawHeight;
+                
+                if (imageIsLandscape !== canvasIsLandscape && currentOrientation === 'landscape') {
+                    // 旋转90度绘制
+                    ctx.save();
+                    ctx.translate(drawWidth / 2, drawHeight / 2);
+                    ctx.rotate(Math.PI / 2);
+                    ctx.drawImage(backgroundImage, -drawHeight / 2, -drawWidth / 2, drawHeight, drawWidth);
+                    ctx.restore();
+                } else {
+                    // 正常绘制，保持宽高比
+                    const scale = Math.min(drawWidth / sourceWidth, drawHeight / sourceHeight);
+                    const scaledWidth = sourceWidth * scale;
+                    const scaledHeight = sourceHeight * scale;
+                    const x = (drawWidth - scaledWidth) / 2;
+                    const y = (drawHeight - scaledHeight) / 2;
+                    
+                    ctx.drawImage(backgroundImage, x, y, scaledWidth, scaledHeight);
+                }
+            } else {
+                // 默认背景
+                ctx.fillStyle = '#f0f0f0';
+                ctx.fillRect(0, 0, canvas.width, canvas.height);
+                
+                // 绘制网格
+                ctx.strokeStyle = '#e0e0e0';
+                ctx.lineWidth = 1;
+                for (let i = 0; i < canvas.width; i += 20) {
+                    ctx.beginPath();
+                    ctx.moveTo(i, 0);
+                    ctx.lineTo(i, canvas.height);
+                    ctx.stroke();
+                }
+                for (let i = 0; i < canvas.height; i += 20) {
+                    ctx.beginPath();
+                    ctx.moveTo(0, i);
+                    ctx.lineTo(canvas.width, i);
+                    ctx.stroke();
+                }
+            }
+            
+            // 绘制文字
+            texts.forEach((text, index) => {
+                ctx.font = text.fontWeight + ' ' + text.fontSize + 'px Arial';
+                ctx.fillStyle = text.color;
+                ctx.textAlign = 'center';
+                ctx.textBaseline = 'middle';
+                
+                // 选中状态边框
+                if (index === selectedTextIndex) {
+                    const metrics = ctx.measureText(text.content);
+                    const textWidth = metrics.width;
+                    const textHeight = text.fontSize;
+                    
+                    ctx.strokeStyle = '#667eea';
+                    ctx.lineWidth = 2;
+                    ctx.strokeRect(
+                        text.x - textWidth/2 - 5,
+                        text.y - textHeight/2 - 5,
+                        textWidth + 10,
+                        textHeight + 10
+                    );
+                }
+                
+                ctx.fillText(text.content, text.x, text.y);
+            });
+        }
+
+        // 更新文字列表
+        function updateTextList() {
+            if (texts.length === 0) {
+                textList.innerHTML = '<div style="padding: 20px; text-align: center; color: #999;">暂无文字</div>';
+                return;
+            }
+            
+            let html = '';
+            texts.forEach((text, index) => {
+                const displayText = text.content.length > 15 ? text.content.substring(0, 15) + '...' : text.content;
+                const selectedClass = index === selectedTextIndex ? 'selected' : '';
+                html += `
+                    <div class="text-item ${selectedClass}" data-index="${index}">
+                        <span>${displayText}</span>
+                        <button class="delete-btn" data-index="${index}">删除</button>
+                    </div>
+                `;
+            });
+            
+            textList.innerHTML = html;
+            
+            // 绑定点击事件
+            textList.querySelectorAll('.text-item').forEach(item => {
+                item.addEventListener('click', function(e) {
+                    if (!e.target.classList.contains('delete-btn')) {
+                        const index = parseInt(this.dataset.index);
+                        selectText(index);
+                    }
+                });
+            });
+            
+            // 绑定删除按钮事件
+            textList.querySelectorAll('.delete-btn').forEach(btn => {
+                btn.addEventListener('click', function(e) {
+                    e.stopPropagation();
+                    const index = parseInt(this.dataset.index);
+                    deleteText(index);
+                });
+            });
+        }
+
+        // 选择文字
+        function selectText(index) {
+            selectedTextIndex = index;
+            const text = texts[index];
+            
+            // 更新控件值
+            fontSize.value = text.fontSize;
+            fontWeight.value = text.fontWeight;
+            textColor.value = text.color;
+            document.getElementById('fontSizeValue').textContent = text.fontSize + 'px';
+            document.getElementById('fontWeightValue').textContent = text.fontWeight;
+            
+            drawCanvas();
+            updateTextList();
+            console.log('选中文字:', text.content);
+        }
+
+        // 删除文字
+        function deleteText(index) {
+            texts.splice(index, 1);
+            if (selectedTextIndex === index) {
+                selectedTextIndex = -1;
+            } else if (selectedTextIndex > index) {
+                selectedTextIndex--;
+            }
+            drawCanvas();
+            updateTextList();
+        }
+
+        // 鼠标事件处理
+        function handleMouseDown(e) {
+            const rect = canvas.getBoundingClientRect();
+            const x = e.clientX - rect.left;
+            const y = e.clientY - rect.top;
+            
+            // 检查点击位置
+            for (let i = texts.length - 1; i >= 0; i--) {
+                const text = texts[i];
+                ctx.font = text.fontWeight + ' ' + text.fontSize + 'px Arial';
+                const metrics = ctx.measureText(text.content);
+                const textWidth = metrics.width;
+                const textHeight = text.fontSize;
+                
+                if (x >= text.x - textWidth/2 && x <= text.x + textWidth/2 &&
+                    y >= text.y - textHeight/2 && y <= text.y + textHeight/2) {
+                    selectedTextIndex = i;
+                    isDragging = true;
+                    dragOffset.x = x - text.x;
+                    dragOffset.y = y - text.y;
+                    selectText(i);
+                    return;
+                }
+            }
+            
+            selectedTextIndex = -1;
+            drawCanvas();
+            updateTextList();
+        }
+
+        function handleMouseMove(e) {
+            if (isDragging && selectedTextIndex >= 0) {
+                const rect = canvas.getBoundingClientRect();
+                const x = e.clientX - rect.left;
+                const y = e.clientY - rect.top;
+                
+                texts[selectedTextIndex].x = x - dragOffset.x;
+                texts[selectedTextIndex].y = y - dragOffset.y;
+                
+                drawCanvas();
+            }
+        }
+
+        function handleMouseUp(e) {
+            isDragging = false;
+        }
+
+        function handleDoubleClick(e) {
+            if (selectedTextIndex >= 0) {
+                const newText = prompt('编辑文字:', texts[selectedTextIndex].content);
+                if (newText !== null && newText.trim() !== '') {
+                    texts[selectedTextIndex].content = newText.trim();
+                    drawCanvas();
+                    updateTextList();
+                }
+            }
+        }
+
+        // 清空画布
+        function clearCanvas() {
+            if (confirm('确定要清空画布吗？这将删除所有文字和背景图片。')) {
+                texts = [];
+                backgroundImage = null;
+                selectedTextIndex = -1;
+                canvas.width = 600;
+                canvas.height = 400;
+                backgroundInput.value = '';
+                drawCanvas();
+                updateTextList();
+                console.log('画布已清空');
+            }
+        }
+
+        // 下载图片
+        function downloadImage() {
+            // 创建一个新的画布用于下载
+            const downloadCanvas = document.createElement('canvas');
+            const downloadCtx = downloadCanvas.getContext('2d');
+            
+            // 设置下载画布的尺寸
+            downloadCanvas.width = canvas.width;
+            downloadCanvas.height = canvas.height;
+            
+            // 绘制白色背景（确保透明区域显示为白色）
+            downloadCtx.fillStyle = '#ffffff';
+            downloadCtx.fillRect(0, 0, downloadCanvas.width, downloadCanvas.height);
+            
+            // 复制当前画布内容
+            downloadCtx.drawImage(canvas, 0, 0);
+            
+            // 创建下载链接
+            const link = document.createElement('a');
+            const timestamp = new Date().getTime();
+            const orientation = currentOrientation === 'landscape' ? '横向' : '竖向';
+            const size = `${canvas.width}x${canvas.height}`;
+            
+            link.download = `图片文字编辑_${orientation}_${size}_${timestamp}.png`;
+            link.href = downloadCanvas.toDataURL('image/png', 1.0);
+            
+            // 触发下载
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            
+            console.log(`图片已下载 - ${orientation} ${size}`);
+        }
+
+        // 页面加载完成后初始化
+        document.addEventListener('DOMContentLoaded', function() {
+            init();
+        });
+
+        // 如果已经加载完成，立即初始化
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', init);
+        } else {
+            init();
+        }
+    </script>
+</body>
+</html>
