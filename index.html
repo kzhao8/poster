@@ -3,897 +3,676 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>图片文字编辑器</title>
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            min-height: 100vh;
-            padding: 20px;
-        }
-
-        .container {
-            max-width: 1200px;
-            margin: 0 auto;
-            background: rgba(255, 255, 255, 0.95);
-            border-radius: 20px;
-            padding: 30px;
-            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
-        }
-
-        .header {
-            text-align: center;
-            margin-bottom: 30px;
-        }
-
-        .header h1 {
-            color: #333;
-            font-size: 2.5em;
-            font-weight: 700;
-            background: linear-gradient(45deg, #667eea, #764ba2);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-        }
-
-        .editor-container {
-            display: flex;
-            gap: 30px;
-            min-height: 600px;
-        }
-
-        .controls {
-            flex: 0 0 300px;
-            background: #f8f9fa;
-            border-radius: 15px;
-            padding: 25px;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
-        }
-
-        .control-group {
-            margin-bottom: 25px;
-        }
-
-        .control-group h3 {
-            color: #333;
-            margin-bottom: 15px;
-            font-size: 1.2em;
-            font-weight: 600;
-        }
-
-        .file-input-wrapper {
-            position: relative;
-            display: inline-block;
-            width: 100%;
-        }
-
-        .file-input {
-            position: absolute;
-            opacity: 0;
-            width: 100%;
-            height: 100%;
-            cursor: pointer;
-        }
-
-        .file-input-button {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            padding: 15px;
-            background: linear-gradient(45deg, #4CAF50, #45a049);
-            color: white;
-            border: none;
-            border-radius: 10px;
-            cursor: pointer;
-            font-size: 16px;
-            font-weight: 600;
-            transition: all 0.3s ease;
-            box-shadow: 0 5px 15px rgba(76, 175, 80, 0.3);
-        }
-
-        .file-input-button:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 8px 25px rgba(76, 175, 80, 0.4);
-        }
-
-        .input-field {
-            width: 100%;
-            padding: 12px;
-            border: 2px solid #e0e0e0;
-            border-radius: 8px;
-            font-size: 16px;
-            transition: all 0.3s ease;
-            background: white;
-        }
-
-        .input-field:focus {
-            outline: none;
-            border-color: #667eea;
-            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
-        }
-
-        .color-input {
-            width: 100%;
-            height: 50px;
-            border: none;
-            border-radius: 8px;
-            cursor: pointer;
-            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.1);
-        }
-
-        .range-input {
-            width: 100%;
-            height: 6px;
-            border-radius: 3px;
-            background: #ddd;
-            outline: none;
-            -webkit-appearance: none;
-        }
-
-        .range-input::-webkit-slider-thumb {
-            -webkit-appearance: none;
-            appearance: none;
-            width: 20px;
-            height: 20px;
-            border-radius: 50%;
-            background: #667eea;
-            cursor: pointer;
-            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
-        }
-
-        .button {
-            width: 100%;
-            padding: 12px;
-            background: linear-gradient(45deg, #667eea, #764ba2);
-            color: white;
-            border: none;
-            border-radius: 8px;
-            font-size: 16px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            margin-bottom: 10px;
-            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.3);
-        }
-
-        .button:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 8px 25px rgba(102, 126, 234, 0.4);
-        }
-
-        .canvas-container {
-            flex: 1;
-            background: white;
-            border-radius: 15px;
-            padding: 20px;
-            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.08);
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            min-height: 600px;
-        }
-
-        #canvas {
-            border: 3px solid #e0e0e0;
-            border-radius: 10px;
-            cursor: crosshair;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
-            transition: all 0.3s ease;
-        }
-
-        #canvas:hover {
-            border-color: #667eea;
-            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.15);
-        }
-
-        .text-list {
-            background: white;
-            border-radius: 10px;
-            max-height: 200px;
-            overflow-y: auto;
-            border: 2px solid #e0e0e0;
-        }
-
-        .text-item {
-            padding: 10px;
-            border-bottom: 1px solid #f0f0f0;
-            cursor: pointer;
-            transition: background-color 0.2s ease;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-
-        .text-item:hover {
-            background-color: #f8f9fa;
-        }
-
-        .text-item.selected {
-            background-color: #e3f2fd;
-            border-left: 4px solid #667eea;
-        }
-
-        .delete-btn {
-            background: #ff4757;
-            color: white;
-            border: none;
-            border-radius: 5px;
-            padding: 5px 10px;
-            cursor: pointer;
-            font-size: 12px;
-            transition: all 0.2s ease;
-        }
-
-        .delete-btn:hover {
-            background: #ff3742;
-            transform: scale(1.05);
-        }
-
-        .orientation-btn {
-            flex: 1;
-            padding: 10px;
-            background: #e0e0e0;
-            color: #666;
-            border: none;
-            border-radius: 8px;
-            cursor: pointer;
-            font-size: 14px;
-            font-weight: 600;
-            transition: all 0.3s ease;
-        }
-
-        .orientation-btn.active {
-            background: linear-gradient(45deg, #667eea, #764ba2);
-            color: white;
-            box-shadow: 0 3px 10px rgba(102, 126, 234, 0.3);
-        }
-
-        .orientation-btn:hover {
-            transform: translateY(-1px);
-        }
-
-        .range-value {
-            display: inline-block;
-            margin-left: 10px;
-            font-weight: 600;
-            color: #667eea;
-        }
-
-        @media (max-width: 768px) {
-            .editor-container {
-                flex-direction: column;
+    <title>圣经真道教会2025退修会</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#2D3748',
+                        secondary: '#718096',
+                        accent: '#4A5568',
+                        light: '#E2E8F0',
+                        dark: '#1A202C'
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'system-ui', 'sans-serif'],
+                    },
+                }
             }
-            
-            .controls {
-                flex: none;
+        }
+    </script>
+    <style type="text/tailwindcss">
+        @layer utilities {
+            .content-auto {
+                content-visibility: auto;
             }
-            
-            .container {
-                padding: 20px;
+            .text-shadow {
+                text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
             }
-            
-            .header h1 {
-                font-size: 2em;
+            .bg-pattern {
+                background-image: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%239C92AC' fill-opacity='0.05'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+            }
+            .timeline-item {
+                @apply relative pl-8 pb-10 border-l-2 border-accent/30;
+            }
+            .timeline-item:last-child {
+                @apply border-transparent;
+            }
+            .timeline-dot {
+                @apply absolute -left-3.5 top-0 w-7 h-7 rounded-full bg-accent flex items-center justify-center text-white;
             }
         }
     </style>
 </head>
-<body>
-    <div class="container">
-        <div class="header">
-            <h1>✨ 图片文字编辑器</h1>
+<body class="bg-pattern bg-light text-primary font-sans min-h-screen flex flex-col">
+    <!-- 导航栏 -->
+    <nav class="bg-white/90 backdrop-blur-sm shadow-md fixed w-full z-50 transition-all duration-300">
+        <div class="container mx-auto px-4 py-3 flex justify-between items-center">
+            <div class="flex items-center space-x-2">
+                <i class="fa fa-cross text-accent text-2xl"></i>
+                <span class="text-xl font-bold text-primary">圣经真道教会</span>
+            </div>
+            <div class="hidden md:flex items-center space-x-6">
+                <a href="#about" class="text-secondary hover:text-primary transition-colors">关于退修会</a>
+                <a href="#schedule" class="text-secondary hover:text-primary transition-colors">日程安排</a>
+                <a href="#location" class="text-secondary hover:text-primary transition-colors">地点信息</a>
+                <a href="#speaker" class="text-secondary hover:text-primary transition-colors">讲员介绍</a>
+                <a href="#notes" class="text-secondary hover:text-primary transition-colors">注意事项</a>
+                <a href="#contact" class="text-secondary hover:text-primary transition-colors">联系我们</a>
+            </div>
+            <button class="md:hidden text-primary text-xl">
+                <i class="fa fa-bars"></i>
+            </button>
         </div>
-        
-        <div class="editor-container">
-            <div class="controls">
-                <div class="control-group">
-                    <h3>🖼️ 背景图片</h3>
-                    <div class="file-input-wrapper">
-                        <input type="file" class="file-input" id="backgroundInput" accept="image/*">
-                        <div class="file-input-button">
-                            📁 选择背景图片
+    </nav>
+
+    <!-- 英雄区 -->
+    <header class="relative h-[80vh] flex items-center justify-center overflow-hidden">
+        <div class="absolute inset-0 z-0">
+            <img src="https://res.cloudinary.com/dtbsote4a/image/upload/v1752270389/%E5%88%B6%E4%BD%9C%E6%97%85%E8%A1%8C%E6%B5%B7%E6%8A%A5_z5veka.png" alt="圣经真道教会2025退修会主题海报" class="w-full h-full object-cover">
+        </div>
+            <div class="flex flex-col sm:flex-row justify-center gap-4 mt-8">
+                <a href="#schedule" class="px-8 py-3 bg-accent hover:bg-accent/90 text-white rounded-full transition-all duration-300 transform hover:scale-105">
+                    查看日程安排
+                </a>
+                <a href="#notes" class="px-8 py-3 bg-white/20 hover:bg-white/30 backdrop-blur-sm text-white border border-white/30 rounded-full transition-all duration-300 transform hover:scale-105">
+                    查看注意事项
+                </a>
+            </div>
+        </div>
+        <div class="absolute bottom-0 w-full h-20 bg-gradient-to-t from-light to-transparent z-20"></div>
+    </header>
+
+    <main class="flex-grow">
+        <!-- 关于退修会 -->
+        <section id="about" class="py-20 bg-white">
+            <div class="container mx-auto px-4">
+                <div class="text-center mb-16">
+                    <h2 class="text-[clamp(1.8rem,3vw,2.5rem)] font-bold text-primary mb-4">关于退修会</h2>
+                    <div class="w-20 h-1 bg-accent mx-auto"></div>
+                </div>
+                <div class="grid md:grid-cols-2 gap-12 items-center">
+                    <div class="order-2 md:order-1">
+                        <h3 class="text-2xl font-bold text-primary mb-6">灵命更新与成长的美好时光</h3>
+                        <p class="text-secondary mb-6 leading-relaxed">
+                            欢迎参加圣经真道教会2025年度退修会！这将是一个让我们暂时放下日常繁忙，专注于与神亲近、彼此建立的美好时光。
+                        </p>
+                        <p class="text-secondary mb-6 leading-relaxed">
+                            退修会为期三天，包含两晚住宿和五顿饭食。我们精心安排了丰富的信息分享、小组讨论和休闲活动，希望能帮助每位参与者在信仰上得到更新和成长。
+                        </p>
+                        <div class="grid grid-cols-2 gap-4 mt-8">
+                            <div class="bg-light/50 p-5 rounded-lg shadow-sm">
+                                <div class="flex items-center mb-3">
+                                    <i class="fa fa-calendar text-accent text-xl mr-3"></i>
+                                    <h4 class="font-bold">3天2晚</h4>
+                                </div>
+                                <p class="text-secondary text-sm">8月1日(周五)至8月3日(周日)</p>
+                            </div>
+                            <div class="bg-light/50 p-5 rounded-lg shadow-sm">
+                                <div class="flex items-center mb-3">
+                                    <i class="fa fa-cutlery text-accent text-xl mr-3"></i>
+                                    <h4 class="font-bold">五顿饭食</h4>
+                                </div>
+                                <p class="text-secondary text-sm">美式自助餐</p>
+                            </div>
+                            <div class="bg-light/50 p-5 rounded-lg shadow-sm">
+                                <div class="flex items-center mb-3">
+                                    <i class="fa fa-bed text-accent text-xl mr-3"></i>
+                                    <h4 class="font-bold">舒适住宿</h4>
+                                </div>
+                                <p class="text-secondary text-sm">两晚住宿，休息充足</p>
+                            </div>
+                            <div class="bg-light/50 p-5 rounded-lg shadow-sm">
+                                <div class="flex items-center mb-3">
+                                    <i class="fa fa-users text-accent text-xl mr-3"></i>
+                                    <h4 class="font-bold">丰富活动</h4>
+                                </div>
+                                <p class="text-secondary text-sm">信息分享、小组讨论、户外活动</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="order-1 md:order-2 relative">
+                        <div class="relative z-10 rounded-lg overflow-hidden shadow-2xl transform transition-all duration-500 hover:scale-[1.02]">
+                            <img src="https://picsum.photos/id/1039/800/600" alt="退修会场地风景" class="w-full h-auto">
+                        </div>
+                        <div class="absolute -bottom-6 -right-6 w-64 h-64 bg-accent/10 rounded-full z-0"></div>
+                        <div class="absolute -top-6 -left-6 w-40 h-40 bg-accent/5 rounded-full z-0"></div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 讲员介绍 -->
+        <section id="speaker" class="py-20 bg-light/30">
+            <div class="container mx-auto px-4">
+                <div class="text-center mb-16">
+                    <h2 class="text-[clamp(1.8rem,3vw,2.5rem)] font-bold text-primary mb-4">讲员介绍</h2>
+                    <div class="w-20 h-1 bg-accent mx-auto"></div>
+                    <p class="text-secondary mt-6 max-w-3xl mx-auto">
+                        我们很荣幸邀请到邵晨光牧师和师母作为本次退修会的讲员，他将带领我们深入探讨圣经真理
+                    </p>
+                </div>
+
+                <div class="max-w-4xl mx-auto bg-white rounded-xl shadow-lg overflow-hidden transform transition-all duration-300 hover:shadow-xl">
+                    <div class="grid md:grid-cols-3 gap-8">
+                        <div class="md:col-span-1 bg-primary p-8 text-center">
+                            <div class="w-40 h-40 mx-auto mb-6 rounded-full overflow-hidden border-4 border-white shadow-xl">
+                                <img src="https://glecenter.org/wp-content/uploads/2022/12/10-edited-scaled.jpg" alt="邵晨光牧师照片" class="w-full h-full object-cover">
+                            </div>
+                            <h3 class="text-2xl font-bold text-white mb-2">邵晨光牧师</h3>
+                            <p class="text-white/80">国际知名旧约学者</p>
+                            <div class="mt-6 flex justify-center space-x-3">
+                                <a href="#" class="w-10 h-10 rounded-full bg-white/10 flex items-center justify-center hover:bg-white/20 transition-colors">
+                                    <i class="fa fa-linkedin"></i>
+                                </a>
+                                <a href="#" class="w-10 h-10 rounded-full bg-white/10 flex items-center justify-center hover:bg-white/20 transition-colors">
+                                    <i class="fa fa-twitter"></i>
+                                </a>
+                                <a href="#" class="w-10 h-10 rounded-full bg-white/10 flex items-center justify-center hover:bg-white/20 transition-colors">
+                                    <i class="fa fa-envelope"></i>
+                                </a>
+                            </div>
+                        </div>
+                        <div class="md:col-span-2 p-8">
+                            <div class="mb-6">
+                                <h4 class="text-lg font-bold text-primary mb-3">教育背景</h4>
+                                <ul class="space-y-2">
+                                    <li class="flex items-start">
+                                        <i class="fa fa-graduation-cap text-accent mt-1 mr-3"></i>
+                                        <span class="text-secondary">美国三一神学院 - 神學碩士</span>
+                                    </li>
+                                    <li class="flex items-start">
+                                        <i class="fa fa-graduation-cap text-accent mt-1 mr-3"></i>
+                                        <span class="text-secondary">美国希伯來聯合大學 - 哲學碩士（主修希伯來聖經）</span>
+                                    </li>
+                                    <li class="flex items-start">
+                                        <i class="fa fa-graduation-cap text-accent mt-1 mr-3"></i>
+                                        <span class="text-secondary">美国希伯來聯合大學 - 哲學博士（主修希伯來聖經和古中東研究）</span>
+                                    </li>
+                                </ul>
+                            </div>
+
+                            <div class="mb-6">
+                                <h4 class="text-lg font-bold text-primary mb-3">专业经历</h4>
+                                <ul class="space-y-2">
+                                    <li class="flex items-start">
+                                        <i class="fa fa-briefcase text-accent mt-1 mr-3"></i>
+                                        <span class="text-secondary">菲律濱聖經神學院院長兼舊約教授（20餘年）</span>
+                                    </li>
+                                    <li class="flex items-start">
+                                        <i class="fa fa-briefcase text-accent mt-1 mr-3"></i>
+                                        <span class="text-secondary">亞洲神學協會(Asia Theological Association)秘書長</span>
+                                    </li>
+                                </ul>
+                            </div>
+
+                            <div class="mb-6">
+                                <h4 class="text-lg font-bold text-primary mb-3">事工与影响</h4>
+                                <p class="text-secondary leading-relaxed">
+                                    邵博士是傳道人中的傳道，腳蹤遍及美、歐、澳、亞洲等地，或帶領聚會，或聖經解經，或神學講座，也經常應邀到亞洲、澳洲、歐洲和美洲神學院講學。
+                                </p>
+                                <p class="text-secondary leading-relaxed">
+                                    他負責分佈在世界27個國家中212間學校和神學院推展神學教育工作，為眾多神學生和牧者提供了專業的培訓和指導。
+                                </p>
+                            </div>
+
+                            <div>
+                                <h4 class="text-lg font-bold text-primary mb-3">著作与发表</h4>
+                                <p class="text-secondary leading-relaxed">
+                                    邵博士常在中英文雜誌發表學術性文章，並著有天道聖經注譯：《尼希米記》，其學術研究和事工貢獻在全球基督教界備受推崇。
+                                </p>
+                            </div>
                         </div>
                     </div>
                 </div>
+            </div>
+        </section>
 
-                <div class="control-group">
-                    <h3>📝 添加文字</h3>
-                    <input type="text" class="input-field" id="textInput" placeholder="输入要添加的文字">
-                    <br><br>
-                    <button class="button" id="addTextBtn">➕ 添加文字</button>
+        <!-- 日程安排 -->
+        <section id="schedule" class="py-20 bg-light/50">
+            <div class="container mx-auto px-4">
+                <div class="text-center mb-16">
+                    <h2 class="text-[clamp(1.8rem,3vw,2.5rem)] font-bold text-primary mb-4">日程安排</h2>
+                    <div class="w-20 h-1 bg-accent mx-auto"></div>
+                    <p class="text-secondary mt-6 max-w-3xl mx-auto">
+                        精心规划的三天行程，让我们在灵命成长的同时，也能享受轻松愉快的时光
+                    </p>
                 </div>
 
-                <div class="control-group">
-                    <h3>🎨 文字样式</h3>
-                    <label>颜色：</label>
-                    <input type="color" class="color-input" id="textColor" value="#ffffff">
-                    <br><br>
-                    
-                    <label>字体大小：</label>
-                    <input type="range" class="range-input" id="fontSize" min="12" max="100" value="24">
-                    <span class="range-value" id="fontSizeValue">24px</span>
-                    <br><br>
-                    
-                    <label>字体粗细：</label>
-                    <input type="range" class="range-input" id="fontWeight" min="100" max="900" step="100" value="400">
-                    <span class="range-value" id="fontWeightValue">400</span>
-                </div>
+                <div class="max-w-4xl mx-auto">
+                    <!-- 第一天 -->
+                    <div class="mb-12 bg-white rounded-xl shadow-lg overflow-hidden transform transition-all duration-300 hover:shadow-xl">
+                        <div class="bg-primary text-white p-6">
+                            <div class="flex items-center">
+                                <div class="w-12 h-12 rounded-full bg-white/20 flex items-center justify-center mr-4">
+                                    <i class="fa fa-calendar-check-o text-xl"></i>
+                                </div>
+                                <div>
+                                    <h3 class="text-2xl font-bold">第一天 - 8月1日 (周五)</h3>
+                                    <p class="text-white/80">抵达与欢迎</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="p-8">
+                            <div class="timeline">
+                                <div class="timeline-item">
+                                    <div class="timeline-dot">
+                                        <i class="fa fa-clock-o"></i>
+                                    </div>
+                                    <div>
+                                        <h4 class="text-lg font-bold text-primary mb-1">4:00 - 5:00 PM</h4>
+                                        <p class="text-secondary">抵达与报到</p>
+                                    </div>
+                                </div>
+                                <div class="timeline-item">
+                                    <div class="timeline-dot">
+                                        <i class="fa fa-cutlery"></i>
+                                    </div>
+                                    <div>
+                                        <h4 class="text-lg font-bold text-primary mb-1">6:00 PM</h4>
+                                        <p class="text-secondary">晚餐</p>
+                                    </div>
+                                </div>
+                                <div class="timeline-item">
+                                    <div class="timeline-dot">
+                                        <i class="fa fa-book"></i>
+                                    </div>
+                                    <div>
+                                        <h4 class="text-lg font-bold text-primary mb-1">7:15 PM</h4>
+                                        <p class="text-secondary">信息分享（主讲：邵晨光博士）</p>
+                                    </div>
+                                </div>
+                                <div class="timeline-item">
+                                    <div class="timeline-dot">
+                                        <i class="fa fa-pray"></i>
+                                    </div>
+                                    <div>
+                                        <h4 class="text-lg font-bold text-primary mb-1">8:45 PM</h4>
+                                        <p class="text-secondary">晚祷</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
 
-                <div class="control-group">
-                    <h3>📋 文字列表</h3>
-                    <div class="text-list" id="textList">
-                        <div style="padding: 20px; text-align: center; color: #999;">
-                            暂无文字
+                    <!-- 第二天 -->
+                    <div class="mb-12 bg-white rounded-xl shadow-lg overflow-hidden transform transition-all duration-300 hover:shadow-xl">
+                        <div class="bg-accent text-white p-6">
+                            <div class="flex items-center">
+                                <div class="w-12 h-12 rounded-full bg-white/20 flex items-center justify-center mr-4">
+                                    <i class="fa fa-sun-o text-xl"></i>
+                                </div>
+                                <div>
+                                    <h3 class="text-2xl font-bold">第二天 - 8月2日 (周六)</h3>
+                                    <p class="text-white/80">灵命成长与休闲时光</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="p-8">
+                            <div class="timeline">
+                                <div class="timeline-item">
+                                    <div class="timeline-dot">
+                                        <i class="fa fa-sun-o"></i>
+                                    </div>
+                                    <div>
+                                        <h4 class="text-lg font-bold text-primary mb-1">7:00 AM</h4>
+                                        <p class="text-secondary">晨更</p>
+                                    </div>
+                                </div>
+                                <div class="timeline-item">
+                                    <div class="timeline-dot">
+                                        <i class="fa fa-coffee"></i>
+                                    </div>
+                                    <div>
+                                        <h4 class="text-lg font-bold text-primary mb-1">8:00 AM</h4>
+                                        <p class="text-secondary">早餐</p>
+                                    </div>
+                                </div>
+                                <div class="timeline-item">
+                                    <div class="timeline-dot">
+                                        <i class="fa fa-book"></i>
+                                    </div>
+                                    <div>
+                                        <h4 class="text-lg font-bold text-primary mb-1">9:00 AM</h4>
+                                        <p class="text-secondary">信息分享（主讲：邵晨光博士）</p>
+                                    </div>
+                                </div>
+                                <div class="timeline-item">
+                                    <div class="timeline-dot">
+                                        <i class="fa fa-tree"></i>
+                                    </div>
+                                    <div>
+                                        <h4 class="text-lg font-bold text-primary mb-1">11:30 AM</h4>
+                                        <p class="text-secondary">户外活动时间（攀岩、蹦床、游泳、射箭）</p>
+                                    </div>
+                                </div>
+                                <div class="timeline-item">
+                                    <div class="timeline-dot">
+                                        <i class="fa fa-cutlery"></i>
+                                    </div>
+                                    <div>
+                                        <h4 class="text-lg font-bold text-primary mb-1">12:30 PM</h4>
+                                        <p class="text-secondary">午餐</p>
+                                    </div>
+                                </div>
+                                <div class="timeline-item">
+                                    <div class="timeline-dot">
+                                        <i class="fa fa-leaf"></i>
+                                    </div>
+                                    <div>
+                                        <h4 class="text-lg font-bold text-primary mb-1">下午</h4>
+                                        <p class="text-secondary">自由活动（湖边散步、购物、游览）</p>
+                                    </div>
+                                </div>
+                                <div class="timeline-item">
+                                    <div class="timeline-dot">
+                                        <i class="fa fa-cutlery"></i>
+                                    </div>
+                                    <div>
+                                        <h4 class="text-lg font-bold text-primary mb-1">6:00 PM</h4>
+                                        <p class="text-secondary">晚餐</p>
+                                    </div>
+                                </div>
+                                <div class="timeline-item">
+                                    <div class="timeline-dot">
+                                        <i class="fa fa-comments"></i>
+                                    </div>
+                                    <div>
+                                        <h4 class="text-lg font-bold text-primary mb-1">7:15 PM</h4>
+                                        <p class="text-secondary">专题讲座（主讲：邵晨光博士）</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 第三天 -->
+                    <div class="bg-white rounded-xl shadow-lg overflow-hidden transform transition-all duration-300 hover:shadow-xl">
+                        <div class="bg-primary text-white p-6">
+                            <div class="flex items-center">
+                                <div class="w-12 h-12 rounded-full bg-white/20 flex items-center justify-center mr-4">
+                                    <i class="fa fa-calendar-times-o text-xl"></i>
+                                </div>
+                                <div>
+                                    <h3 class="text-2xl font-bold">第三天 - 8月3日 (周日)</h3>
+                                    <p class="text-white/80">结束与返程</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="p-8">
+                            <div class="timeline">
+                                <div class="timeline-item">
+                                    <div class="timeline-dot">
+                                        <i class="fa fa-sun-o"></i>
+                                    </div>
+                                    <div>
+                                        <h4 class="text-lg font-bold text-primary mb-1">7:00 AM</h4>
+                                        <p class="text-secondary">晨更</p>
+                                    </div>
+                                </div>
+                                <div class="timeline-item">
+                                    <div class="timeline-dot">
+                                        <i class="fa fa-coffee"></i>
+                                    </div>
+                                    <div>
+                                        <h4 class="text-lg font-bold text-primary mb-1">8:00 AM</h4>
+                                        <p class="text-secondary">早餐</p>
+                                    </div>
+                                </div>
+                                <div class="timeline-item">
+                                    <div class="timeline-dot">
+                                        <i class="fa fa-book"></i>
+                                    </div>
+                                    <div>
+                                        <h4 class="text-lg font-bold text-primary mb-1">10:30 AM</h4>
+                                        <p class="text-secondary">结束信息（主讲：邵晨光博士）</p>
+                                    </div>
+                                </div>
+                                <div class="timeline-item">
+                                    <div class="timeline-dot">
+                                        <i class="fa fa-sign-out"></i>
+                                    </div>
+                                    <div>
+                                        <h4 class="text-lg font-bold text-primary mb-1">12:00 PM</h4>
+                                        <p class="text-secondary">离开退修中心</p>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
+            </div>
+        </section>
 
-                <div class="control-group">
-                    <h3>📐 画布方向</h3>
-                    <div style="display: flex; gap: 10px; margin-bottom: 15px;">
-                        <button class="orientation-btn" id="landscapeBtn" data-orientation="landscape">
-                            📱 横向
-                        </button>
-                        <button class="orientation-btn active" id="portraitBtn" data-orientation="portrait">
-                            📱 竖向
-                        </button>
-                    </div>
-                    
-                    <label>画布尺寸：</label>
-                    <select class="input-field" id="canvasSize" style="margin-bottom: 15px;">
-                        <option value="600x400">600×400 (默认)</option>
-                        <option value="800x600">800×600</option>
-                        <option value="1024x768">1024×768</option>
-                        <option value="1200x800">1200×800</option>
-                        <option value="1920x1080">1920×1080 (高清)</option>
-                        <option value="custom">自定义尺寸</option>
-                    </select>
-                    
-                    <div id="customSizeInputs" style="display: none; gap: 10px; margin-bottom: 15px;">
-                        <input type="number" class="input-field" id="customWidth" placeholder="宽度" min="100" max="3000" style="width: 48%; display: inline-block;">
-                        <input type="number" class="input-field" id="customHeight" placeholder="高度" min="100" max="3000" style="width: 48%; display: inline-block;">
-                    </div>
+        <!-- 地点信息 -->
+        <section id="location" class="py-20 bg-white">
+            <div class="container mx-auto px-4">
+                <div class="text-center mb-16">
+                    <h2 class="text-[clamp(1.8rem,3vw,2.5rem)] font-bold text-primary mb-4">地点信息</h2>
+                    <div class="w-20 h-1 bg-accent mx-auto"></div>
+                    <p class="text-secondary mt-6 max-w-3xl mx-auto">
+                        PineCrest Conference Center - 一个宁静美丽的地方，适合灵命的反思与成长
+                    </p>
                 </div>
 
-                <div class="control-group">
-                    <button class="button" id="clearBtn">🗑️ 清空画布</button>
-                    <button class="button" id="downloadBtn">💾 下载图片</button>
+                <div class="grid md:grid-cols-2 gap-12 items-center">
+                    <div>
+                        <div class="bg-light/50 p-8 rounded-xl shadow-lg">
+                            <div class="flex items-start mb-6">
+                                <div class="w-14 h-14 rounded-full bg-accent/10 flex items-center justify-center mr-4 shrink-0">
+                                    <i class="fa fa-map-marker text-accent text-2xl"></i>
+                                </div>
+                                <div>
+                                    <h3 class="text-xl font-bold text-primary mb-2">PineCrest Conference Center</h3>
+                                    <p class="text-secondary mb-4">
+                                        1140 Pine Crest Rd, Twin Peaks, CA 92391
+                                    </p>
+                                    <div class="flex items-center text-secondary mb-2">
+                                        <i class="fa fa-phone mr-2"></i>
+                                        <span>(555) 123-4567</span>
+                                    </div>
+                                    <div class="flex items-center text-secondary">
+                                        <i class="fa fa-envelope mr-2"></i>
+                                        <span>info@pinecrestcenter.org</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="mb-6">
+                                <h4 class="font-bold text-primary mb-3">场地特色</h4>
+                                <ul class="space-y-2">
+                                    <li class="flex items-start">
+                                        <i class="fa fa-check text-accent mt-1 mr-2"></i>
+                                        <span class="text-secondary">美丽的自然环境，提供宁静的退修氛围</span>
+                                    </li>
+                                    <li class="flex items-start">
+                                        <i class="fa fa-check text-accent mt-1 mr-2"></i>
+                                        <span class="text-secondary">宽敞舒适的住宿设施</span>
+                                    </li>
+                                    <li class="flex items-start">
+                                        <i class="fa fa-check text-accent mt-1 mr-2"></i>
+                                        <span class="text-secondary">多种户外活动设施（攀岩、蹦床、游泳池、射箭场）</span>
+                                    </li>
+                                    <li class="flex items-start">
+                                        <i class="fa fa-check text-accent mt-1 mr-2"></i>
+                                        <span class="text-secondary">专业的餐饮服务，提供健康营养的餐食</span>
+                                    </li>
+                                    <li class="flex items-start">
+                                        <i class="fa fa-check text-accent mt-1 mr-2"></i>
+                                        <span class="text-secondary">适合团队活动和灵修的多功能会议室</span>
+                                    </li>
+                                </ul>
+                            </div>
+                            <a href="https://maps.google.com" target="_blank" class="inline-block px-6 py-3 bg-accent hover:bg-accent/90 text-white rounded-lg transition-all duration-300 transform hover:scale-105 shadow-md">
+                                <i class="fa fa-map mr-2"></i>查看地图
+                            </a>
+                        </div>
+                    </div>
+                    <div class="relative">
+                        <div class="rounded-xl overflow-hidden shadow-2xl transform transition-all duration-500 hover:scale-[1.02]">
+                            <img src="https://picsum.photos/id/1043/800/600" alt="PineCrest Conference Center外观" class="w-full h-auto">
+                        </div>
+                        <div class="absolute -bottom-6 -left-6 w-64 h-64 bg-accent/10 rounded-full z-0"></div>
+                    </div>
                 </div>
             </div>
+        </section>
 
-            <div class="canvas-container">
-                <canvas id="canvas" width="600" height="400"></canvas>
-            </div>
-        </div>
-    </div>
+        <!-- 注意事项 -->
+        <section id="notes" class="py-20 bg-light/50">
+            <div class="container mx-auto px-4">
+                <div class="text-center mb-16">
+                    <h2 class="text-[clamp(1.8rem,3vw,2.5rem)] font-bold text-primary mb-4">注意事项</h2>
+                    <div class="w-20 h-1 bg-accent mx-auto"></div>
+                    <p class="text-secondary mt-6 max-w-3xl mx-auto">
+                        请仔细阅读以下注意事项，确保您有一个愉快、平安的退修会体验
+                    </p>
+                </div>
 
-    <script>
-        // 获取DOM元素
-        const canvas = document.getElementById('canvas');
-        const ctx = canvas.getContext('2d');
-        const backgroundInput = document.getElementById('backgroundInput');
-        const textInput = document.getElementById('textInput');
-        const textColor = document.getElementById('textColor');
-        const fontSize = document.getElementById('fontSize');
-        const fontWeight = document.getElementById('fontWeight');
-        const textList = document.getElementById('textList');
-        const addTextBtn = document.getElementById('addTextBtn');
-        const clearBtn = document.getElementById('clearBtn');
-        const downloadBtn = document.getElementById('downloadBtn');
-        const landscapeBtn = document.getElementById('landscapeBtn');
-        const portraitBtn = document.getElementById('portraitBtn');
-        const canvasSize = document.getElementById('canvasSize');
-        const customSizeInputs = document.getElementById('customSizeInputs');
-        const customWidth = document.getElementById('customWidth');
-        const customHeight = document.getElementById('customHeight');
-        
-        // 状态变量
-        let backgroundImage = null;
-        let texts = [];
-        let selectedTextIndex = -1;
-        let isDragging = false;
-        let dragOffset = { x: 0, y: 0 };
-        let currentOrientation = 'portrait'; // 'landscape' 或 'portrait'
+                <div class="max-w-4xl mx-auto">
+                    <div class="bg-white rounded-xl shadow-lg p-8">
+                        <div class="mb-8">
+                            <h3 class="text-xl font-bold text-primary mb-4 flex items-center">
+                                <i class="fa fa-info-circle text-accent text-2xl mr-3"></i>
+                                必备物品
+                            </h3>
+                            <ul class="space-y-3">
+                                <li class="flex items-start">
+                                    <i class="fa fa-check-circle text-accent mt-1 mr-3"></i>
+                                    <span class="text-secondary">请自备枕头、被子或睡袋，退修中心不提供床上用品</span>
+                                </li>
+                                <li class="flex items-start">
+                                    <i class="fa fa-check-circle text-accent mt-1 mr-3"></i>
+                                    <span class="text-secondary">舒适的衣物和鞋子，适合户外活动和灵修</span>
+                                </li>
+                                <li class="flex items-start">
+                                    <i class="fa fa-check-circle text-accent mt-1 mr-3"></i>
+                                    <span class="text-secondary">个人洗漱用品、毛巾等</span>
+                                </li>
+                                <li class="flex items-start">
+                                    <i class="fa fa-check-circle text-accent mt-1 mr-3"></i>
+                                    <span class="text-secondary">圣经、笔记本和笔，用于记录灵修心得</span>
+                                </li>
+                                <li class="flex items-start">
+                                    <i class="fa fa-check-circle text-accent mt-1 mr-3"></i>
+                                    <span class="text-secondary">个人常用药品（如需要）</span>
+                                </li>
+                            </ul>
+                        </div>
 
-        // 初始化函数
-        function init() {
-            console.log('编辑器初始化...');
-            drawCanvas();
-            setupEventListeners();
-        }
+                        <div class="mb-8">
+                            <h3 class="text-xl font-bold text-primary mb-4 flex items-center">
+                                <i class="fa fa-exclamation-triangle text-accent text-2xl mr-3"></i>
+                                重要提醒
+                            </h3>
+                            <ul class="space-y-3">
+                                <li class="flex items-start">
+                                    <i class="fa fa-exclamation-circle text-accent mt-1 mr-3"></i>
+                                    <span class="text-secondary">请准时到达退修中心，第一天下午4:00开始报到</span>
+                                </li>
+                                <li class="flex items-start">
+                                    <i class="fa fa-exclamation-circle text-accent mt-1 mr-3"></i>
+                                    <span class="text-secondary">退修会期间，请关闭手机或调至静音状态，保持安静的环境</span>
+                                </li>
+                                <li class="flex items-start">
+                                    <i class="fa fa-exclamation-circle text-accent mt-1 mr-3"></i>
+                                    <span class="text-secondary">尊重他人隐私和个人空间，共同维护和谐的退修氛围</span>
+                                </li>
+                                <li class="flex items-start">
+                                    <i class="fa fa-exclamation-circle text-accent mt-1 mr-3"></i>
+                                    <span class="text-secondary">遵守退修中心的各项规定，爱护设施和环境</span>
+                                </li>
+                                <li class="flex items-start">
+                                    <i class="fa fa-exclamation-circle text-accent mt-1 mr-3"></i>
+                                    <span class="text-secondary">如有任何紧急情况，请立即联系同工或工作人员</span>
+                                </li>
+                            </ul>
+                        </div>
 
-        // 设置事件监听器
-        function setupEventListeners() {
-            // 背景图片上传
-            backgroundInput.addEventListener('change', function(e) {
-                handleBackgroundUpload(e);
-            });
-            
-            // 添加文字按钮
-            addTextBtn.addEventListener('click', function() {
-                addText();
-            });
-            
-            // 文字输入框回车
-            textInput.addEventListener('keypress', function(e) {
-                if (e.key === 'Enter') {
-                    addText();
-                }
-            });
-            
-            // 字体大小滑块
-            fontSize.addEventListener('input', function() {
-                document.getElementById('fontSizeValue').textContent = this.value + 'px';
-                if (selectedTextIndex >= 0) {
-                    texts[selectedTextIndex].fontSize = parseInt(this.value);
-                    drawCanvas();
-                    updateTextList();
-                }
-            });
-            
-            // 字体粗细滑块
-            fontWeight.addEventListener('input', function() {
-                document.getElementById('fontWeightValue').textContent = this.value;
-                if (selectedTextIndex >= 0) {
-                    texts[selectedTextIndex].fontWeight = this.value;
-                    drawCanvas();
-                    updateTextList();
-                }
-            });
-            
-            // 文字颜色
-            textColor.addEventListener('change', function() {
-                if (selectedTextIndex >= 0) {
-                    texts[selectedTextIndex].color = this.value;
-                    drawCanvas();
-                    updateTextList();
-                }
-            });
-            
-            // 方向按钮
-            landscapeBtn.addEventListener('click', function() {
-                setOrientation('landscape');
-            });
-            
-            portraitBtn.addEventListener('click', function() {
-                setOrientation('portrait');
-            });
-            
-            // 画布尺寸选择
-            canvasSize.addEventListener('change', function() {
-                if (this.value === 'custom') {
-                    customSizeInputs.style.display = 'flex';
-                } else {
-                    customSizeInputs.style.display = 'none';
-                    applyCanvasSize(this.value);
-                }
-            });
-            
-            // 自定义尺寸输入
-            customWidth.addEventListener('input', function() {
-                if (customWidth.value && customHeight.value) {
-                    applyCanvasSize('custom');
-                }
-            });
-            
-            customHeight.addEventListener('input', function() {
-                if (customWidth.value && customHeight.value) {
-                    applyCanvasSize('custom');
-                }
-            });
-            
-            // 清空画布按钮
-            clearBtn.addEventListener('click', function() {
-                clearCanvas();
-            });
-            
-            // 下载图片按钮
-            downloadBtn.addEventListener('click', function() {
-                downloadImage();
-            });
-            
-            // 画布鼠标事件
-            canvas.addEventListener('mousedown', function(e) {
-                handleMouseDown(e);
-            });
-            
-            canvas.addEventListener('mousemove', function(e) {
-                handleMouseMove(e);
-            });
-            
-            canvas.addEventListener('mouseup', function(e) {
-                handleMouseUp(e);
-            });
-            
-            canvas.addEventListener('dblclick', function(e) {
-                handleDoubleClick(e);
-            });
-        }
-
-        // 设置画布方向
-        function setOrientation(orientation) {
-            currentOrientation = orientation;
-            
-            // 更新按钮状态
-            landscapeBtn.classList.toggle('active', orientation === 'landscape');
-            portraitBtn.classList.toggle('active', orientation === 'portrait');
-            
-            // 如果有背景图片，重新调整画布大小
-            if (backgroundImage) {
-                handleBackgroundUpload({ target: backgroundInput });
-            } else {
-                // 调整默认画布大小
-                const currentSize = canvasSize.value;
-                if (currentSize !== 'custom') {
-                    applyCanvasSize(currentSize);
-                }
-            }
-        }
-        
-        // 应用画布尺寸
-        function applyCanvasSize(sizeValue) {
-            let width, height;
-            
-            if (sizeValue === 'custom') {
-                width = parseInt(customWidth.value) || 600;
-                height = parseInt(customHeight.value) || 400;
-            } else {
-                const [w, h] = sizeValue.split('x').map(Number);
-                width = w;
-                height = h;
-            }
-            
-            // 根据方向调整
-            if (currentOrientation === 'landscape' && width < height) {
-                [width, height] = [height, width];
-            } else if (currentOrientation === 'portrait' && width > height) {
-                [width, height] = [height, width];
-            }
-            
-            canvas.width = width;
-            canvas.height = height;
-            
-            // 调整文字位置（如果文字超出画布范围）
-            texts.forEach(text => {
-                text.x = Math.min(text.x, width - 50);
-                text.y = Math.min(text.y, height - 30);
-                text.x = Math.max(text.x, 50);
-                text.y = Math.max(text.y, 30);
-            });
-            
-            drawCanvas();
-        }
-        function handleBackgroundUpload(e) {
-            const file = e.target.files[0];
-            if (file) {
-                const reader = new FileReader();
-                reader.onload = function(event) {
-                    const img = new Image();
-                    img.onload = function() {
-                        backgroundImage = img;
-                        
-                        // 调整画布大小
-                        const maxWidth = 600;
-                        const maxHeight = 400;
-                        let newWidth = img.width;
-                        let newHeight = img.height;
-                        
-                        if (newWidth > maxWidth || newHeight > maxHeight) {
-                            const ratio = Math.min(maxWidth / newWidth, maxHeight / newHeight);
-                            newWidth = newWidth * ratio;
-                            newHeight = newHeight * ratio;
-                        }
-                        
-                        canvas.width = newWidth;
-                        canvas.height = newHeight;
-                        drawCanvas();
-                        console.log('背景图片已加载');
-                    };
-                    img.src = event.target.result;
-                };
-                reader.readAsDataURL(file);
-            }
-        }
-
-        // 添加文字
-        function addText() {
-            const text = textInput.value.trim();
-            if (text) {
-                const newText = {
-                    content: text,
-                    x: canvas.width / 2,
-                    y: canvas.height / 2,
-                    fontSize: parseInt(fontSize.value),
-                    fontWeight: fontWeight.value,
-                    color: textColor.value,
-                    id: Date.now()
-                };
-                
-                texts.push(newText);
-                textInput.value = '';
-                drawCanvas();
-                updateTextList();
-                console.log('添加文字:', text);
-            }
-        }
-
-        // 绘制画布
-        function drawCanvas() {
-            // 清空画布
-            ctx.clearRect(0, 0, canvas.width, canvas.height);
-            
-            // 绘制背景
-            if (backgroundImage) {
-                // 根据当前方向调整背景图片绘制
-                let drawWidth = canvas.width;
-                let drawHeight = canvas.height;
-                let sourceWidth = backgroundImage.width;
-                let sourceHeight = backgroundImage.height;
-                
-                // 如果需要旋转（方向不匹配）
-                const imageIsLandscape = sourceWidth > sourceHeight;
-                const canvasIsLandscape = drawWidth > drawHeight;
-                
-                if (imageIsLandscape !== canvasIsLandscape && currentOrientation === 'landscape') {
-                    // 旋转90度绘制
-                    ctx.save();
-                    ctx.translate(drawWidth / 2, drawHeight / 2);
-                    ctx.rotate(Math.PI / 2);
-                    ctx.drawImage(backgroundImage, -drawHeight / 2, -drawWidth / 2, drawHeight, drawWidth);
-                    ctx.restore();
-                } else {
-                    // 正常绘制，保持宽高比
-                    const scale = Math.min(drawWidth / sourceWidth, drawHeight / sourceHeight);
-                    const scaledWidth = sourceWidth * scale;
-                    const scaledHeight = sourceHeight * scale;
-                    const x = (drawWidth - scaledWidth) / 2;
-                    const y = (drawHeight - scaledHeight) / 2;
-                    
-                    ctx.drawImage(backgroundImage, x, y, scaledWidth, scaledHeight);
-                }
-            } else {
-                // 默认背景
-                ctx.fillStyle = '#f0f0f0';
-                ctx.fillRect(0, 0, canvas.width, canvas.height);
-                
-                // 绘制网格
-                ctx.strokeStyle = '#e0e0e0';
-                ctx.lineWidth = 1;
-                for (let i = 0; i < canvas.width; i += 20) {
-                    ctx.beginPath();
-                    ctx.moveTo(i, 0);
-                    ctx.lineTo(i, canvas.height);
-                    ctx.stroke();
-                }
-                for (let i = 0; i < canvas.height; i += 20) {
-                    ctx.beginPath();
-                    ctx.moveTo(0, i);
-                    ctx.lineTo(canvas.width, i);
-                    ctx.stroke();
-                }
-            }
-            
-            // 绘制文字
-            texts.forEach((text, index) => {
-                ctx.font = text.fontWeight + ' ' + text.fontSize + 'px Arial';
-                ctx.fillStyle = text.color;
-                ctx.textAlign = 'center';
-                ctx.textBaseline = 'middle';
-                
-                // 选中状态边框
-                if (index === selectedTextIndex) {
-                    const metrics = ctx.measureText(text.content);
-                    const textWidth = metrics.width;
-                    const textHeight = text.fontSize;
-                    
-                    ctx.strokeStyle = '#667eea';
-                    ctx.lineWidth = 2;
-                    ctx.strokeRect(
-                        text.x - textWidth/2 - 5,
-                        text.y - textHeight/2 - 5,
-                        textWidth + 10,
-                        textHeight + 10
-                    );
-                }
-                
-                ctx.fillText(text.content, text.x, text.y);
-            });
-        }
-
-        // 更新文字列表
-        function updateTextList() {
-            if (texts.length === 0) {
-                textList.innerHTML = '<div style="padding: 20px; text-align: center; color: #999;">暂无文字</div>';
-                return;
-            }
-            
-            let html = '';
-            texts.forEach((text, index) => {
-                const displayText = text.content.length > 15 ? text.content.substring(0, 15) + '...' : text.content;
-                const selectedClass = index === selectedTextIndex ? 'selected' : '';
-                html += `
-                    <div class="text-item ${selectedClass}" data-index="${index}">
-                        <span>${displayText}</span>
-                        <button class="delete-btn" data-index="${index}">删除</button>
+                        <div>
+                            <h3 class="text-xl font-bold text-primary mb-4 flex items-center">
+                                <i class="fa fa-phone text-accent text-2xl mr-3"></i>
+                                联系我们
+                            </h3>
+                            <div class="grid md:grid-cols-2 gap-6">
+                                <div class="bg-light/30 p-6 rounded-lg">
+                                    <h4 class="font-bold text-primary mb-3">教会地址</h4>
+                                    <p class="text-secondary">
+                                        1010 N Tustin Ave<br>
+                                        Santa Ana, CA 92701
+                                    </p>
+                                </div>
+                                <div class="bg-light/30 p-6 rounded-lg">
+                                    <h4 class="font-bold text-primary mb-3">同工联系方式</h4>
+                                    <p class="text-secondary">
+                                        哲千: 949-508-6827<br>
+                                        Email: logosbible777@gmail.com
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
                     </div>
-                `;
-            });
-            
-            textList.innerHTML = html;
-            
-            // 绑定点击事件
-            textList.querySelectorAll('.text-item').forEach(item => {
-                item.addEventListener('click', function(e) {
-                    if (!e.target.classList.contains('delete-btn')) {
-                        const index = parseInt(this.dataset.index);
-                        selectText(index);
-                    }
-                });
-            });
-            
-            // 绑定删除按钮事件
-            textList.querySelectorAll('.delete-btn').forEach(btn => {
-                btn.addEventListener('click', function(e) {
-                    e.stopPropagation();
-                    const index = parseInt(this.dataset.index);
-                    deleteText(index);
-                });
-            });
-        }
+                </div>
+            </div>
+        </section>
+    </main>
 
-        // 选择文字
-        function selectText(index) {
-            selectedTextIndex = index;
-            const text = texts[index];
-            
-            // 更新控件值
-            fontSize.value = text.fontSize;
-            fontWeight.value = text.fontWeight;
-            textColor.value = text.color;
-            document.getElementById('fontSizeValue').textContent = text.fontSize + 'px';
-            document.getElementById('fontWeightValue').textContent = text.fontWeight;
-            
-            drawCanvas();
-            updateTextList();
-            console.log('选中文字:', text.content);
-        }
-
-        // 删除文字
-        function deleteText(index) {
-            texts.splice(index, 1);
-            if (selectedTextIndex === index) {
-                selectedTextIndex = -1;
-            } else if (selectedTextIndex > index) {
-                selectedTextIndex--;
-            }
-            drawCanvas();
-            updateTextList();
-        }
-
-        // 鼠标事件处理
-        function handleMouseDown(e) {
-            const rect = canvas.getBoundingClientRect();
-            const x = e.clientX - rect.left;
-            const y = e.clientY - rect.top;
-            
-            // 检查点击位置
-            for (let i = texts.length - 1; i >= 0; i--) {
-                const text = texts[i];
-                ctx.font = text.fontWeight + ' ' + text.fontSize + 'px Arial';
-                const metrics = ctx.measureText(text.content);
-                const textWidth = metrics.width;
-                const textHeight = text.fontSize;
+    <!-- 页脚 -->
+    <footer class="bg-primary text-white py-12">
+        <div class="container mx-auto px-4">
+            <div class="grid md:grid-cols-3 gap-8">
+                <div>
+                    <div class="flex items-center space-x-2 mb-6">
+                        <i class="fa fa-cross text-white text-2xl"></i>
+                        <span class="text-xl font-bold">圣经真道教会</span>
+                    </div>
+                    <p class="text-white/70 mb-6">
+                        欢迎参加我们的退修会，愿神祝福此次聚会，让我们在主里共同成长。
+                    </p>
+                    <div class="flex space-x-4">
+                        <a href="#" class="w-10 h-10 rounded-full bg-white/10 flex items-center justify-center hover:bg-white/20 transition-colors">
+                            <i class="fa fa-facebook"></i>
+                        </a>
+                        <a href="#" class="w-10 h-10 rounded-full bg-white/10 flex items-center justify-center hover:bg-white/20 transition-colors">
+                            <i class="fa fa-twitter"></i>
+                        </a>
+                        <a href="#" class="w-10 h-10 rounded-full bg-white/10 flex items-center justify-center hover:bg-white/20 transition-colors">
+                            <i class="fa fa-instagram"></i>
+                        </a>
+                        <a href="#" class="w-10 h-10 rounded-full bg-white/10 flex items-center justify-center hover:bg-white/20 transition-colors">
+                            <i class="fa fa-youtube-play"></i>
+                        </a>
+                    </div>
+                </div>
+                <div>
+                    <h3 class="text-lg font-bold mb-6">快速链接</h3>
+                    <ul class="space-y-3">
+                        <li><a href="#about" class="text-white/70 hover:text-white transition-colors">关于退修会</a></li>
+                        <li><a href="#schedule" class="text-white/70 hover:text-white transition-colors">日程安排</a></li>
+                        <li><a href="#location" class="text-white/70 hover:text-white transition-colors">地点信息</a></li>
+                        <li><a href="#speaker" class="text-white/70 hover:text-white transition-colors">讲员介绍</a></li>
+                        <li><a href="#notes" class="text-white/70 hover:text-white transition-colors">注意事项</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <h3 class="text-lg font-bold mb-6">联系方式</h3>
+                    <ul class="space-y-3">
+                        <li class="flex items-start">
+                            <i class="fa fa-map-marker text-accent mt-1 mr-3"></i>
+                            <span class="text-white/70">1010 N Tustin Ave, Santa Ana, CA 92701</span>
+                        </li>
+                        <li class="flex items-start">
+                            <i class="fa fa-phone text-accent mt-1 mr-3"></i>
+                            <span class="text-white/70">哲千: 949-508-6827</span>
+                        </li>
+                        <li class="flex items-start">
+                            <i class="fa fa-envelope text-accent mt-1 mr-3"></i>
+                            <span class="text-white/70">logosbible777@gmail.com</span>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+            <div class="border-t border-white/10 mt-10 pt-6 text-center text-white/50 text-sm">
                 
-                if (x >= text.x - textWidth/2 && x <= text.x + textWidth/2 &&
-                    y >= text.y - textHeight/2 && y <= text.y + textHeight/2) {
-                    selectedTextIndex = i;
-                    isDragging = true;
-                    dragOffset.x = x - text.x;
-                    dragOffset.y = y - text.y;
-                    selectText(i);
-                    return;
-                }
-            }
-            
-            selectedTextIndex = -1;
-            drawCanvas();
-            updateTextList();
-        }
-
-        function handleMouseMove(e) {
-            if (isDragging && selectedTextIndex >= 0) {
-                const rect = canvas.getBoundingClientRect();
-                const x = e.clientX - rect.left;
-                const y = e.clientY - rect.top;
-                
-                texts[selectedTextIndex].x = x - dragOffset.x;
-                texts[selectedTextIndex].y = y - dragOffset.y;
-                
-                drawCanvas();
-            }
-        }
-
-        function handleMouseUp(e) {
-            isDragging = false;
-        }
-
-        function handleDoubleClick(e) {
-            if (selectedTextIndex >= 0) {
-                const newText = prompt('编辑文字:', texts[selectedTextIndex].content);
-                if (newText !== null && newText.trim() !== '') {
-                    texts[selectedTextIndex].content = newText.trim();
-                    drawCanvas();
-                    updateTextList();
-                }
-            }
-        }
-
-        // 清空画布
-        function clearCanvas() {
-            if (confirm('确定要清空画布吗？这将删除所有文字和背景图片。')) {
-                texts = [];
-                backgroundImage = null;
-                selectedTextIndex = -1;
-                canvas.width = 600;
-                canvas.height = 400;
-                backgroundInput.value = '';
-                drawCanvas();
-                updateTextList();
-                console.log('画布已清空');
-            }
-        }
-
-        // 下载图片
-        function downloadImage() {
-            // 创建一个新的画布用于下载
-            const downloadCanvas = document.createElement('canvas');
-            const downloadCtx = downloadCanvas.getContext('2d');
-            
-            // 设置下载画布的尺寸
-            downloadCanvas.width = canvas.width;
-            downloadCanvas.height = canvas.height;
-            
-            // 绘制白色背景（确保透明区域显示为白色）
-            downloadCtx.fillStyle = '#ffffff';
-            downloadCtx.fillRect(0, 0, downloadCanvas.width, downloadCanvas.height);
-            
-            // 复制当前画布内容
-            downloadCtx.drawImage(canvas, 0, 0);
-            
-            // 创建下载链接
-            const link = document.createElement('a');
-            const timestamp = new Date().getTime();
-            const orientation = currentOrientation === 'landscape' ? '横向' : '竖向';
-            const size = `${canvas.width}x${canvas.height}`;
-            
-            link.download = `图片文字编辑_${orientation}_${size}_${timestamp}.png`;
-            link.href = downloadCanvas.toDataURL('image/png', 1.0);
-            
-            // 触发下载
-            document.body.appendChild(link);
-            link.click();
-            document.body.removeChild(link);
-            
-            console.log(`图片已下载 - ${orientation} ${size}`);
-        }
-
-        // 页面加载完成后初始化
-        document.addEventListener('DOMContentLoaded', function() {
-            init();
-        });
-
-        // 如果已经加载完成，立即初始化
-        if (document.readyState === 'loading') {
-            document.addEventListener('DOMContentLoaded', init);
-        } else {
-            init();
-        }
-    </script>
-</body>
-</html>
